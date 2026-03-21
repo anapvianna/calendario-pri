@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calendário — Selfcare by Pri Buiar</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Fraunces:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#f9f0f0; --surface:#fdf6f6; --border:#e8d0d0; --text:#3d2424; --muted:#9e7e7e; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; padding:28px 20px 64px; }
+  header { display:flex; align-items:flex-end; justify-content:space-between; flex-wrap:wrap; gap:16px; margin-bottom:24px; padding-bottom:18px; border-bottom:2px solid #7d4a4a; }
+  header h1 { font-family:'Fraunces',serif; font-size:26px; font-weight:700; line-height:1; }
+  header h1 em { font-style:italic; font-weight:400; }
+  .header-sub { font-size:11px; color:var(--muted); letter-spacing:0.06em; text-transform:uppercase; margin-top:4px; }
+  .header-stats { display:flex; gap:8px; flex-wrap:wrap; }
+  .stat { background:var(--surface); border:1.5px solid var(--border); border-radius:10px; padding:7px 13px; font-size:12px; }
+  .stat strong { display:block; font-size:20px; font-weight:700; font-family:'Fraunces',serif; line-height:1.1; }
+  #loading { text-align:center; padding:60px 20px; font-size:14px; color:var(--muted); }
+  #loading .spinner { width:32px; height:32px; border:3px solid var(--border); border-top-color:var(--text); border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 16px; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  #error-box { display:none; background:#fee2e2; border:1.5px solid #f87171; border-radius:12px; padding:20px 24px; margin-bottom:24px; }
+  #error-box h3 { font-size:14px; font-weight:600; color:#b91c1c; margin-bottom:6px; }
+  #error-box p { font-size:13px; color:#7f1d1d; line-height:1.6; }
+  #error-box code { background:#fecaca; padding:1px 5px; border-radius:3px; font-size:12px; }
+  .legend { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:16px; }
+  .legend-item { display:flex; align-items:center; gap:5px; font-size:11px; font-weight:500; background:var(--surface); border:1.5px solid var(--border); border-radius:20px; padding:4px 10px; cursor:pointer; transition:all 0.15s; user-select:none; }
+  .legend-item:hover { border-color:var(--text); }
+  .legend-item.hidden { opacity:0.3; }
+  .legend-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+  .hint { font-size:11px; color:var(--muted); margin-bottom:20px; display:flex; flex-wrap:wrap; gap:8px; }
+  .hint-tag { background:#fffbeb; border:1px solid #fcd34d; border-radius:4px; padding:2px 8px; color:#92400e; font-weight:500; font-size:11px; }
+  .months-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(520px,1fr)); gap:24px; }
+  .month-card { background:var(--surface); border:1.5px solid #dfc0c0; border-radius:14px; overflow:hidden; }
+  .month-head { display:flex; align-items:center; justify-content:space-between; padding:15px 18px 13px; border-bottom:1.5px solid var(--border); background:#7d4a4a; color:#fdf6f6; }
+  .month-name { font-family:'Fraunces',serif; font-size:20px; font-weight:700; }
+  .month-count { font-size:13px; opacity:0.6; }
+  .cal-grid { padding:10px 10px 4px; }
+  .dow-row { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; margin-bottom:4px; }
+  .dow-cell { text-align:center; font-size:11px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase; color:var(--muted); padding:3px 0; }
+  .days-row { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; margin-bottom:3px; }
+  .day { min-height:78px; border-radius:7px; padding:6px 5px 4px; display:flex; flex-direction:column; gap:3px; position:relative; transition:background 0.1s; }
+  .day.empty { background:#f5e6e6; }
+  .day.has-events { background:#fff8f8; border:1px solid #e8d0d0; }
+  .day.drag-over { background:#fffbeb !important; border:2px dashed #f59e0b !important; }
+  .day-num { font-size:12px; font-weight:600; color:var(--muted); line-height:1; margin-bottom:2px; }
+  .pill { border-radius:4px; padding:3px 6px; font-size:11px; font-weight:600; line-height:1.4; word-break:break-word; cursor:grab; transition:transform 0.1s, box-shadow 0.1s; border-width:1.5px; border-style:solid; user-select:none; position:relative; }
+  .pill:hover { transform:scale(1.02); box-shadow:0 2px 8px rgba(0,0,0,0.14); }
+  .pill:hover .pill-actions { display:flex; }
+  .pill.dragging { opacity:0.35; cursor:grabbing; }
+  .pill-actions { display:none; position:absolute; top:-2px; right:-2px; gap:2px; z-index:10; }
+  .pill-btn { width:17px; height:17px; border-radius:3px; border:none; cursor:pointer; font-size:10px; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.7); color:#fff; line-height:1; padding:0; }
+  .pill-btn:hover { background:rgba(0,0,0,0.9); }
+  .pill-ghost { position:fixed; pointer-events:none; border-radius:4px; padding:4px 8px; font-size:11px; font-weight:600; z-index:9999; box-shadow:0 6px 20px rgba(0,0,0,0.22); border-width:1.5px; border-style:solid; max-width:160px; transform:rotate(2deg); font-family:'DM Sans',sans-serif; }
+  .week-bar { display:flex; flex-wrap:wrap; gap:3px; padding:8px 10px 10px; border-top:1px solid #dfc0c0; }
+  .week-tag { font-size:10px; font-weight:600; padding:2px 8px; border-radius:20px; }
+  .week-ok { background:#dcfce7; color:#15803d; }
+  .week-warn { background:#fef3c7; color:#b45309; }
+  .week-bad { background:#fee2e2; color:#dc2626; }
+  .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:1000; align-items:center; justify-content:center; }
+  .modal-overlay.open { display:flex; }
+  .modal { background:var(--surface); border-radius:16px; padding:28px; width:100%; max-width:420px; box-shadow:0 20px 60px rgba(0,0,0,0.2); }
+  .modal h3 { font-family:'Fraunces',serif; font-size:20px; margin-bottom:20px; }
+  .modal label { display:block; font-size:12px; font-weight:600; color:var(--muted); margin-bottom:5px; letter-spacing:0.04em; text-transform:uppercase; }
+  .modal input, .modal select { width:100%; border:1.5px solid var(--border); border-radius:8px; padding:9px 12px; font-size:14px; font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text); margin-bottom:16px; outline:none; }
+  .modal input:focus, .modal select:focus { border-color:var(--text); }
+  .modal-actions { display:flex; gap:8px; justify-content:flex-end; margin-top:4px; }
+  .btn { padding:9px 18px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; border:1.5px solid var(--text); font-family:'DM Sans',sans-serif; transition:all 0.15s; }
+  .btn-primary { background:var(--text); color:#fff; }
+  .btn-primary:hover { opacity:0.85; }
+  .btn-ghost { background:transparent; color:var(--text); }
+  .btn-ghost:hover { background:var(--bg); }
+  .btn-danger { background:#fee2e2; color:#b91c1c; border-color:#f87171; }
+  .btn-danger:hover { background:#fecaca; }
+  .day-add { display:none; position:absolute; bottom:3px; right:3px; width:16px; height:16px; border-radius:3px; background:rgba(0,0,0,0.12); border:none; color:var(--muted); font-size:12px; cursor:pointer; align-items:center; justify-content:center; line-height:1; }
+  .day:hover .day-add { display:flex; }
+  .save-status { font-size:11px; color:var(--muted); margin-left:8px; }
+  .save-status.saving { color:#b45309; }
+  .save-status.saved { color:#15803d; }
+  .save-status.error { color:#b91c1c; }
+  .btn-strategy { background:var(--surface); border:1.5px solid var(--border); border-radius:10px; padding:7px 14px; font-size:12px; font-weight:600; cursor:pointer; font-family:'DM Sans',sans-serif; color:var(--text); transition:all 0.15s; }
+  .btn-strategy:hover { border-color:var(--text); }
+  .strat-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:2000; align-items:flex-start; justify-content:center; overflow-y:auto; padding:40px 20px; }
+  .strat-overlay.open { display:flex; }
+  .strat-panel { background:var(--surface); border-radius:18px; width:100%; max-width:700px; padding:36px; box-shadow:0 24px 64px rgba(0,0,0,0.2); position:relative; margin:auto; }
+  .strat-close { position:absolute; top:16px; right:18px; background:none; border:none; font-size:22px; cursor:pointer; color:var(--muted); line-height:1; }
+  .strat-close:hover { color:var(--text); }
+  .strat-panel h2 { font-family:'Fraunces',serif; font-size:22px; font-weight:700; margin-bottom:6px; }
+  .strat-intro { font-size:13px; color:var(--muted); margin-bottom:28px; line-height:1.6; }
+  .strat-section { margin-bottom:28px; }
+  .strat-section h3 { font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted); margin-bottom:14px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+  .strat-cat { display:flex; gap:12px; padding:11px 0; border-bottom:1px solid var(--border); align-items:flex-start; }
+  .strat-cat:last-child { border-bottom:none; }
+  .strat-badge { font-size:10px; font-weight:700; padding:3px 8px; border-radius:20px; border-width:1.5px; border-style:solid; white-space:nowrap; flex-shrink:0; margin-top:2px; }
+  .strat-cat-body { flex:1; }
+  .strat-cat-name { font-size:13px; font-weight:600; color:var(--text); margin-bottom:3px; }
+  .strat-cat-desc { font-size:12px; color:#555; line-height:1.6; margin-bottom:5px; }
+  .strat-cat-vol { font-size:11px; color:var(--text); background:var(--bg); border-radius:4px; padding:3px 8px; display:inline-block; border:1px solid var(--border); }
+  .strat-rules { display:flex; flex-direction:column; gap:8px; }
+  .strat-rule { display:flex; gap:10px; align-items:flex-start; font-size:13px; line-height:1.6; color:#444; }
+  .strat-rule::before { content:'—'; color:var(--muted); flex-shrink:0; margin-top:0; }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Selfcare by <em>Pri Buiar</em></h1>
+    <div class="header-sub">Calendário editorial 2026 &nbsp;·&nbsp; <span id="save-status" class="save-status"></span></div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><div class="header-stats" id="header-stats"></div><button class="btn-strategy" onclick="document.getElementById('strat-overlay').classList.add('open')">Entenda o Calendário</button>
+<button class="btn-strategy" onclick="document.getElementById('strat2-overlay').classList.add('open')">Estratégia</button>
+<button class="btn-strategy" onclick="openSugestoes()">Sugestões</button></div>
+</header>
+<div id="error-box"><h3>Não consegui conectar à planilha</h3><p id="error-msg"></p></div>
+<div id="loading"><div class="spinner"></div>Carregando calendário...</div>
+<div id="app" style="display:none">
+  <div class="legend" id="legend"></div>
+  <div class="hint">
+    <span class="hint-tag">✦ arrastar</span> mova cards entre dias
+    <span class="hint-tag">✎ editar</span> passe o mouse no card → clique no lápis
+    <span class="hint-tag">+ duplicar</span> passe o mouse → clique no +
+    <span class="hint-tag">✕ excluir</span> passe o mouse → clique no ✕
+    <span class="hint-tag">◎ novo card</span> passe o mouse num dia → clique no +
+  </div>
+  <div class="months-grid" id="months"></div>
+</div>
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h3 id="modal-title">Novo card</h3>
+    <label>Texto do card</label>
+    <input type="text" id="modal-label" placeholder="Ex: MI — Nath Mendes 1/5 (lançamento)">
+    <label>Categoria</label>
+    <select id="modal-cat"></select>
+    <label>Data</label>
+    <input type="date" id="modal-date">
+    <div class="modal-actions">
+      <button class="btn btn-danger" id="modal-delete" style="display:none">Excluir</button>
+      <button class="btn btn-ghost" id="modal-cancel">Cancelar</button>
+      <button class="btn btn-primary" id="modal-save">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div class="strat-overlay" id="strat-overlay" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="strat-panel">
+    <button class="strat-close" onclick="document.getElementById('strat-overlay').classList.remove('open')">✕</button>
+    <h2>Entenda o Calendário</h2>
+    <p class="strat-intro">Selfcare by Pri Buiar · Calendário Editorial 2026 · As categorias estruturam os tipos de conteúdo produzidos para a plataforma e redes sociais.</p>
+
+    <div class="strat-section">
+      <h3>Categorias de Conteúdo</h3>
+
+      <div class="strat-cat">
+        <span class="strat-badge" style="background:#d1fae5;color:#00875a;border-color:#34d399">MI</span>
+        <div class="strat-cat-body">
+          <div class="strat-cat-name">Mulheres Inspiradoras</div>
+          <div class="strat-cat-desc">Entrevistas conduzidas pela Pri com mulheres que inspiram, trazendo histórias, aprendizados e visões de mundo.</div>
+          <span class="strat-cat-vol">4 entrevistas no ano · 5 posts cada: 4 ao longo de 2 semanas + 1 manutenção ~2 meses depois</span>
+        </div>
+      </div>
+
+      <div class="strat-cat">
+        <span class="strat-badge" style="background:#ede9fe;color:#6d28d9;border-color:#a78bfa">CL</span>
+        <div class="strat-cat-body">
+          <div class="strat-cat-name">Clube do Livro</div>
+          <div class="strat-cat-desc">Encontro virtual da comunidade para troca de ideias, interpretações e experiências sobre a leitura de um livro.</div>
+          <span class="strat-cat-vol">4 livros no ano · ciclos de ~2 meses · 3 posts: divulgação (seg) → lançamento (qua semana seguinte) → citação (sex ou sáb)</span>
+        </div>
+      </div>
+
+      <div class="strat-cat">
+        <span class="strat-badge" style="background:#ffedd5;color:#c2410c;border-color:#fb923c">ME</span>
+        <div class="strat-cat-body">
+          <div class="strat-cat-name">Meeting com Especialista</div>
+          <div class="strat-cat-desc">Bate-papo com profissionais convidados sobre temas específicos, com conteúdo completo disponível na plataforma.</div>
+          <span class="strat-cat-vol">3 posts: divulgação → lançamento na plataforma → citação do profissional</span>
+        </div>
+      </div>
+
+      <div class="strat-cat">
+        <span class="strat-badge" style="background:#dbeafe;color:#1d4ed8;border-color:#60a5fa">SI</span>
+        <div class="strat-cat-body">
+          <div class="strat-cat-name">Série Inédita</div>
+          <div class="strat-cat-desc">Sequência de conteúdos sobre um tema que se desenvolve ao longo do tempo e se encerra com um encontro com especialista na plataforma.</div>
+          <span class="strat-cat-vol">3–5 posts independentes (1 a cada 1–2 semanas, sempre às quartas) + lançamento do meeting completo</span>
+        </div>
+      </div>
+
+      <div class="strat-cat">
+        <span class="strat-badge" style="background:#fce7f3;color:#be185d;border-color:#f472b6">RE</span>
+        <div class="strat-cat-body">
+          <div class="strat-cat-name">Receita</div>
+          <div class="strat-cat-desc">Pri convida um especialista ou entusiasta para preparar e compartilhar receitas saudáveis — conteúdo leve de descoberta e pertencimento.</div>
+          <span class="strat-cat-vol">3 receitas no ano · 2 posts cada: lançamento na plataforma + manutenção</span>
+        </div>
+      </div>
+
+      <div class="strat-cat">
+        <span class="strat-badge" style="background:#dcfce7;color:#15803d;border-color:#4ade80">TC</span>
+        <div class="strat-cat-body">
+          <div class="strat-cat-name">Atividade Física</div>
+          <div class="strat-cat-desc">Práticas de exercícios, lutas, yoga ou outras modalidades conduzidas por especialistas — conteúdo de valor e descoberta.</div>
+          <span class="strat-cat-vol">3 treinos no ano · 2 posts cada: lançamento na plataforma + manutenção</span>
+        </div>
+      </div>
+
+      <div class="strat-cat">
+        <span class="strat-badge" style="background:#f5f3ff;color:#7c3aed;border-color:#c4b5fd">DP</span>
+        <div class="strat-cat-body">
+          <div class="strat-cat-name">Depoimento</div>
+          <div class="strat-cat-desc">Relato real de transformação de membros da comunidade — prova social específica e humana.</div>
+          <span class="strat-cat-vol">10 posts no ano · 1 por mês · sempre nos últimos dias do mês</span>
+        </div>
+      </div>
+
+      <div class="strat-cat">
+        <span class="strat-badge" style="background:#f5f5f4;color:#57534e;border-color:#a8a29e">RW</span>
+        <div class="strat-cat-body">
+          <div class="strat-cat-name">Manutenção / Review</div>
+          <div class="strat-cat-desc">Retomada de conteúdos já disponíveis na plataforma com gancho novo — curadoria intencional, não preenchimento de calendário.</div>
+          <span class="strat-cat-vol">Máximo 1 por semana · espaçado ao longo do ano</span>
+        </div>
+      </div>
+
+      <div class="strat-cat">
+        <span class="strat-badge" style="background:#fee2e2;color:#b91c1c;border-color:#f87171">RS</span>
+        <div class="strat-cat-body">
+          <div class="strat-cat-name">Respiro</div>
+          <div class="strat-cat-desc">Conteúdos leves e compartilháveis — frases, citações, reflexões — sempre acompanhados de música. Dão leveza ao ritmo sem quebrar a consistência.</div>
+          <span class="strat-cat-vol">Máximo 1 por semana · sempre no início ou fim de semana (seg, sex, sáb ou dom)</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="strat-section">
+      <h3>Regras de Distribuição</h3>
+      <div class="strat-rules">
+        <div class="strat-rule">Lançamentos sempre às <strong>quartas-feiras</strong></div>
+        <div class="strat-rule">Clube do Livro: 1/3 sempre numa <strong>segunda-feira</strong> → 2/3 na quarta da semana seguinte → 3/3 na sexta ou sábado</div>
+        <div class="strat-rule">RS nunca em terça, quarta ou quinta — apenas segunda, sexta, sábado ou domingo</div>
+        <div class="strat-rule">Máximo <strong>1 RS e 1 RW</strong> por semana</div>
+        <div class="strat-rule">Mínimo de <strong>3 posts por semana</strong> (domingo a sábado) de março a agosto</div>
+        <div class="strat-rule">DP sempre nos <strong>últimos dias do mês</strong></div>
+        <div class="strat-rule">Ciclos do Clube do Livro: intervalo de <strong>~2 meses</strong> entre cada livro</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="strat-overlay" id="strat2-overlay" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="strat-panel">
+    <button class="strat-close" onclick="document.getElementById('strat2-overlay').classList.remove('open')">✕</button>
+    <h2>Estratégia de Conteúdo</h2>
+    <p class="strat-intro">Selfcare by Pri Buiar · Instagram 2026</p>
+
+    <div class="strat-section">
+      <h3>Objetivo</h3>
+      <div class="strat-rules">
+        <div class="strat-rule">Transformar seguidoras em assinantes da plataforma. O Instagram é o canal de aquisição — cada peça de conteúdo existe para mover a mulher de fora para dentro da comunidade.</div>
+      </div>
+    </div>
+
+    <div class="strat-section">
+      <h3>O problema que estávamos resolvendo</h3>
+      <div class="strat-rules">
+        <div class="strat-rule">O conteúdo tem qualidade. O que estava quebrado era o ciclo de divulgação — peças novas entravam antes das anteriores serem absorvidas, competindo entre si. O resultado é que nenhuma entregava o impacto que poderia.</div>
+        <div class="strat-rule">Além disso, o conteúdo falava bem para quem já é da comunidade, mas pressupunha contexto que a mulher de fora não tem. O perfil estava nutrido para dentro e fechado para fora. Isso limitava o crescimento diretamente.</div>
+      </div>
+    </div>
+
+    <div class="strat-section">
+      <h3>A virada estratégica</h3>
+      <div class="strat-rules">
+        <div class="strat-rule">Cada entrevista MI ganha duas semanas de atenção — 4 posts distribuídos com intensidade. Só então entra o próximo conteúdo principal. Menos lançamentos simultâneos significa que cada entrega chega para mais gente, é melhor consumida e gera mais impacto.</div>
+        <div class="strat-rule">Cerca de 2 meses depois, um post de manutenção (RW) retoma o tema da entrevista com gancho novo — função de curadoria, não de preenchimento de calendário.</div>
+        <div class="strat-rule">Para crescer, parte do conteúdo é desenhada para quem ainda não conhece a marca: Reels que abrem com uma dor real e universal — esgotamento, solidão no autocuidado, saúde feminina ignorada — sem pressupor que a pessoa sabe o que é o Selfcare ou quem é a Pri. A mulher de fora precisa se reconhecer no conteúdo antes de entender o que está sendo oferecido.</div>
+      </div>
+    </div>
+
+    <div class="strat-section">
+      <h3>O papel da Pri</h3>
+      <div class="strat-rules">
+        <div class="strat-rule">Pri é a curadora editorial do perfil — não influencer, não especialista técnica. Ela aparece como a voz que seleciona, conecta e revisita. Quando ela fala, ancora o posicionamento da marca. Quando passa a palavra para especialistas ou membros, ela é a razão pela qual vale a pena ouvir.</div>
+      </div>
+    </div>
+
+    <div class="strat-section">
+      <h3>Padrão de execução</h3>
+      <div class="strat-rules">
+        <div class="strat-rule">Hook em texto nos primeiros 2 segundos de todo Reel</div>
+        <div class="strat-rule">Legenda em português primeiro</div>
+        <div class="strat-rule">CTA com desejo construído antes da chamada para a plataforma</div>
+        <div class="strat-rule">Nenhuma peça entra no calendário para preencher espaço</div>
+        <div class="strat-rule">3 posts por semana no feed · Stories diários · Consistência acima de volume</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="strat-overlay" id="sug-overlay" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="strat-panel" style="max-width:580px;">
+    <button class="strat-close" onclick="document.getElementById('sug-overlay').classList.remove('open')">✕</button>
+    <h2>Sugestões</h2>
+    <p class="strat-intro">Espaço aberto para ideias, ajustes e observações. Qualquer pessoa com acesso ao calendário pode escrever — tudo fica salvo e visível para o time.</p>
+
+    <div class="strat-section">
+      <h3>Nova sugestão</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <input type="text" id="sug-autor" placeholder="Seu nome (opcional)" style="border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);outline:none;">
+        <textarea id="sug-texto" placeholder="Escreva sua sugestão aqui..." rows="4" style="border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);outline:none;resize:vertical;"></textarea>
+        <button class="btn btn-primary" id="sug-btn" onclick="saveSugestao()" style="align-self:flex-end;">Enviar sugestão</button>
+      </div>
+    </div>
+
+    <div class="strat-section">
+      <h3>Sugestões recebidas</h3>
+      <div id="sug-list" style="display:flex;flex-direction:column;gap:10px;">
+        <div style="font-size:12px;color:var(--muted);">Carregando...</div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+const SHEET_ID="1ccXJWkewhmz7a03kX8YXopRA7zSPhZcB3ydm67NaYxM";
+const SHEET_NAME="eventos";
+const APPS_SCRIPT_URL="https://script.google.com/macros/s/AKfycbyGX3lPPUAF10CW3VDOTWuUS2UBwFZEsRpW4HRtT0U1zPomHou5pIc2R-O7j3yMBhQy_g/exec";
+const CATS={
+  MI:{label:"Mulheres inspiradoras",color:"#00875a",bg:"#d1fae5",border:"#34d399"},
+  CL:{label:"Clube do livro",color:"#6d28d9",bg:"#ede9fe",border:"#a78bfa"},
+  ME:{label:"Meeting c/ especialista",color:"#c2410c",bg:"#ffedd5",border:"#fb923c"},
+  SI:{label:"Série inédita",color:"#1d4ed8",bg:"#dbeafe",border:"#60a5fa"},
+  RE:{label:"Receita",color:"#be185d",bg:"#fce7f3",border:"#f472b6"},
+  TC:{label:"Treine comigo",color:"#15803d",bg:"#dcfce7",border:"#4ade80"},
+  DP:{label:"Depoimento",color:"#7c3aed",bg:"#f5f3ff",border:"#c4b5fd"},
+  RW:{label:"Review (manutenção)",color:"#57534e",bg:"#f5f5f4",border:"#a8a29e"},
+  RS:{label:"Respiro",color:"#b91c1c",bg:"#fee2e2",border:"#f87171"},
+};
+const MONTHS_DEF=[
+  {y:2026,m:2,label:"Março 2026"},{y:2026,m:3,label:"Abril 2026"},
+  {y:2026,m:4,label:"Maio 2026"},{y:2026,m:5,label:"Junho 2026"},
+  {y:2026,m:6,label:"Julho 2026"},{y:2026,m:7,label:"Agosto 2026"},
+  {y:2026,m:8,label:"Setembro 2026"},{y:2026,m:9,label:"Outubro 2026"},
+  {y:2026,m:10,label:"Novembro 2026"},{y:2026,m:11,label:"Dezembro 2026"},
+];
+const DOW=["dom","seg","ter","qua","qui","sex","sáb"];
+let events=[],hiddenCats=new Set(),dragId=null,ghost=null,nextId=91,modalMode=null,modalTargetId=null;
+
+async function loadFromSheets(){
+  const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${SHEET_NAME}`;
+  const res=await fetch(url);
+  if(!res.ok)throw new Error(`HTTP ${res.status}`);
+  const text=await res.text();
+  const rows=parseCSV(text);
+  events=rows.slice(1).filter(r=>r[0]).map(r=>({id:parseInt(r[0]),date:r[1].trim(),label:r[2].trim(),cat:r[3].trim()}));
+  nextId=Math.max(...events.map(e=>e.id),90)+1;
+}
+function parseCSV(text){
+  return text.split("\n").map(line=>{
+    const cols=[];let cur="",inQ=false;
+    for(let i=0;i<line.length;i++){const ch=line[i];if(ch==='"'){inQ=!inQ;continue;}if(ch===','&&!inQ){cols.push(cur);cur="";continue;}cur+=ch;}
+    cols.push(cur);return cols.map(c=>c.trim().replace(/^"|"$/g,''));
+  });
+}
+async function saveToSheets(){
+  setStatus("saving","salvando…");
+  try{
+    await fetch(APPS_SCRIPT_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"replace",events})});
+    setStatus("saved","salvo ✓");setTimeout(()=>setStatus("",""),3000);
+  }catch(e){setStatus("error","erro ao salvar");}
+}
+function setStatus(cls,msg){const el=document.getElementById("save-status");el.className="save-status "+cls;el.textContent=msg;}
+
+function startDrag(e,ev,pill){
+  dragId=ev.id;pill.classList.add("dragging");
+  const c=CATS[ev.cat];ghost=document.createElement("div");ghost.className="pill-ghost";
+  ghost.style.cssText=`background:${c.bg};color:${c.color};border-color:${c.border};`;
+  ghost.textContent=ev.label;document.body.appendChild(ghost);moveGhost(e.clientX,e.clientY);
+  document.addEventListener("mousemove",onMove);document.addEventListener("mouseup",onUp);
+}
+function moveGhost(x,y){if(!ghost)return;ghost.style.left=(x+14)+"px";ghost.style.top=(y-8)+"px";}
+function onMove(e){
+  moveGhost(e.clientX,e.clientY);
+  document.querySelectorAll(".day.drag-over").forEach(d=>d.classList.remove("drag-over"));
+  const el=document.elementFromPoint(e.clientX,e.clientY);
+  const dayEl=el?.closest(".day[data-date]");if(dayEl)dayEl.classList.add("drag-over");
+}
+function onUp(e){
+  document.removeEventListener("mousemove",onMove);document.removeEventListener("mouseup",onUp);
+  const el=document.elementFromPoint(e.clientX,e.clientY);
+  const dayEl=el?.closest(".day[data-date]");
+  if(dayEl&&dragId!==null){const ev=events.find(x=>x.id===dragId);if(ev&&ev.date!==dayEl.dataset.date){ev.date=dayEl.dataset.date;saveToSheets();}}
+  document.querySelectorAll(".day.drag-over").forEach(d=>d.classList.remove("drag-over"));
+  document.querySelectorAll(".pill.dragging").forEach(p=>p.classList.remove("dragging"));
+  if(ghost){ghost.remove();ghost=null;}dragId=null;render();
+}
+
+function openModal(mode,opts={}){
+  modalMode=mode;modalTargetId=opts.id||null;
+  document.getElementById("modal-title").textContent=mode==="edit"?"Editar card":"Novo card";
+  document.getElementById("modal-label").value=opts.label||"";
+  document.getElementById("modal-date").value=opts.date||"";
+  document.getElementById("modal-delete").style.display=mode==="edit"?"block":"none";
+  document.getElementById("modal-cat").innerHTML=Object.entries(CATS).map(([k,v])=>`<option value="${k}" ${opts.cat===k?'selected':''}>${k} — ${v.label}</option>`).join("");
+  document.getElementById("modal").classList.add("open");
+  document.getElementById("modal-label").focus();
+}
+function closeModal(){document.getElementById("modal").classList.remove("open");modalMode=null;modalTargetId=null;}
+document.getElementById("modal-cancel").addEventListener("click",closeModal);
+document.getElementById("modal").addEventListener("click",e=>{if(e.target===e.currentTarget)closeModal();});
+document.getElementById("modal-save").addEventListener("click",()=>{
+  const label=document.getElementById("modal-label").value.trim();
+  const cat=document.getElementById("modal-cat").value;
+  const date=document.getElementById("modal-date").value;
+  if(!label||!date)return;
+  if(modalMode==="edit"){const ev=events.find(e=>e.id===modalTargetId);if(ev){ev.label=label;ev.cat=cat;ev.date=date;}}
+  else{events.push({id:nextId++,date,label,cat});}
+  saveToSheets();closeModal();render();
+});
+document.getElementById("modal-delete").addEventListener("click",()=>{
+  if(!confirm("Excluir este card?"))return;
+  events=events.filter(e=>e.id!==modalTargetId);saveToSheets();closeModal();render();
+});
+
+function getSunday(dateStr){
+  const d=new Date(dateStr+"T12:00:00");
+  const s=new Date(d);s.setDate(d.getDate()-d.getDay());return s.toISOString().slice(0,10);
+}
+function buildWeekMap(){const wm={};events.forEach(e=>{const w=getSunday(e.date);wm[w]=(wm[w]||0)+1;});return wm;}
+function buildEventMap(){const map={};events.forEach(e=>{if(!map[e.date])map[e.date]=[];map[e.date].push(e);});return map;}
+function ds(y,m,d){return `${y}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;}
+
+function renderLegend(){
+  document.getElementById("legend").innerHTML=Object.entries(CATS).map(([k,v])=>
+    `<div class="legend-item${hiddenCats.has(k)?' hidden':''}" data-cat="${k}"><span class="legend-dot" style="background:${v.color}"></span>${k} — ${v.label}</div>`
+  ).join("");
+  document.querySelectorAll(".legend-item").forEach(item=>{
+    item.addEventListener("click",()=>{const c=item.dataset.cat;hiddenCats.has(c)?hiddenCats.delete(c):hiddenCats.add(c);render();});
+  });
+}
+function renderStats(){
+  document.getElementById("header-stats").innerHTML=
+    `<div class="stat"><strong>${events.length}</strong>posts no ano</div>`;
+}
+function createPill(ev){
+  const c=CATS[ev.cat]||CATS.RS;
+  const pill=document.createElement("div");pill.className="pill";pill.dataset.id=ev.id;
+  pill.style.cssText=`background:${c.bg};color:${c.color};border-color:${c.border};`;
+  if(hiddenCats.has(ev.cat))pill.style.display="none";
+  const txt=document.createElement("span");txt.textContent=ev.label;pill.appendChild(txt);
+  const actions=document.createElement("div");actions.className="pill-actions";
+  const btnEdit=document.createElement("button");btnEdit.className="pill-btn";btnEdit.title="Editar";btnEdit.textContent="✎";
+  btnEdit.addEventListener("click",e=>{e.stopPropagation();openModal("edit",{id:ev.id,label:ev.label,cat:ev.cat,date:ev.date});});
+  const btnDup=document.createElement("button");btnDup.className="pill-btn";btnDup.title="Duplicar";btnDup.textContent="+";
+  btnDup.addEventListener("click",e=>{e.stopPropagation();openModal("new",{label:ev.label,cat:ev.cat,date:ev.date});});
+  const btnDel=document.createElement("button");btnDel.className="pill-btn";btnDel.title="Excluir";btnDel.textContent="✕";btnDel.style.background="rgba(185,28,28,0.8)";
+  btnDel.addEventListener("click",e=>{e.stopPropagation();if(!confirm("Excluir este card?"))return;events=events.filter(x=>x.id!==ev.id);saveToSheets();render();});
+  actions.appendChild(btnEdit);actions.appendChild(btnDup);actions.appendChild(btnDel);pill.appendChild(actions);
+  pill.addEventListener("mousedown",e=>{if(e.target.closest(".pill-actions"))return;startDrag(e,ev,pill);});
+  return pill;
+}
+function render(){
+  renderLegend();renderStats();
+  const eventMap=buildEventMap(),weekMap=buildWeekMap();
+  const container=document.getElementById("months");container.innerHTML="";
+  MONTHS_DEF.forEach(({y,m,label})=>{
+    const daysInMonth=new Date(y,m+1,0).getDate(),startDow=new Date(y,m,1).getDay();
+    let monthCount=0;
+    for(let d=1;d<=daysInMonth;d++){const s=ds(y,m,d);if(eventMap[s])monthCount+=eventMap[s].length;}
+    const card=document.createElement("div");card.className="month-card";
+    card.innerHTML=`<div class="month-head"><span class="month-name">${label}</span><span class="month-count">${monthCount} post${monthCount!==1?'s':''}</span></div><div class="cal-grid"><div class="dow-row">${DOW.map(d=>`<div class="dow-cell">${d}</div>`).join("")}</div></div>`;
+    const calGrid=card.querySelector(".cal-grid");
+    let currentRow=null,dayCount=0;
+    function newRow(){currentRow=document.createElement("div");currentRow.className="days-row";calGrid.appendChild(currentRow);}
+    newRow();
+    for(let i=0;i<startDow;i++){const e=document.createElement("div");e.className="day empty";currentRow.appendChild(e);dayCount++;}
+    for(let d=1;d<=daysInMonth;d++){
+      if(dayCount>0&&dayCount%7===0)newRow();
+      const dateS=ds(y,m,d),dayEvs=eventMap[dateS]||[];
+      const dayEl=document.createElement("div");dayEl.className="day"+(dayEvs.length?" has-events":" empty");dayEl.dataset.date=dateS;
+      const num=document.createElement("div");num.className="day-num";num.textContent=d;dayEl.appendChild(num);
+      dayEvs.forEach(ev=>dayEl.appendChild(createPill(ev)));
+      const addBtn=document.createElement("button");addBtn.className="day-add";addBtn.textContent="+";addBtn.title="Novo card";
+      addBtn.addEventListener("click",()=>openModal("new",{date:dateS}));dayEl.appendChild(addBtn);
+      currentRow.appendChild(dayEl);dayCount++;
+    }
+    const rem=dayCount%7;if(rem!==0)for(let i=rem;i<7;i++){const e=document.createElement("div");e.className="day empty";currentRow.appendChild(e);}
+    const shownWeeks=new Set();for(let d=1;d<=daysInMonth;d++)shownWeeks.add(getSunday(ds(y,m,d)));
+    const weekBar=document.createElement("div");weekBar.className="week-bar";
+    [...shownWeeks].sort().forEach(wk=>{
+      const cnt=weekMap[wk]||0,wkDate=new Date(wk+"T12:00:00"),end=new Date(wkDate);end.setDate(wkDate.getDate()+6);
+      const tag=document.createElement("span");tag.className="week-tag "+(cnt>=3?"week-ok":cnt>=2?"week-warn":"week-bad");
+      tag.textContent=`${wkDate.getDate()}/${wkDate.getMonth()+1}–${end.getDate()}/${end.getMonth()+1}: ${cnt}`;weekBar.appendChild(tag);
+    });
+    card.appendChild(weekBar);container.appendChild(card);
+  });
+}
+const SHEET_NAME_SUG = "sugestoes";
+
+async function loadSugestoes(){
+  try {
+    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${SHEET_NAME_SUG}`;
+    const res = await fetch(url);
+    if(!res.ok) throw new Error("erro");
+    const text = await res.text();
+    const rows = parseCSV(text);
+    const items = rows.slice(1).filter(r=>r[0]&&r[1]);
+    const list = document.getElementById("sug-list");
+    if(!list) return;
+    if(items.length===0){
+      list.innerHTML='<div style="font-size:12px;color:var(--muted);">Nenhuma sugestão ainda. Seja a primeira!</div>';
+      return;
+    }
+    list.innerHTML = items.reverse().map(r=>`
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
+        <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px;">${r[2]||'Anônimo'} <span style="color:var(--muted);font-weight:400;">· ${r[3]||''}</span></div>
+        <div style="font-size:13px;color:#333;line-height:1.6;">${r[1]}</div>
+      </div>
+    `).join("");
+  } catch(e) {
+    const list = document.getElementById("sug-list");
+    if(list) list.innerHTML='<div style="font-size:12px;color:var(--muted);">Não foi possível carregar as sugestões.</div>';
+  }
+}
+
+async function saveSugestao(){
+  const texto = document.getElementById("sug-texto").value.trim();
+  const autor = document.getElementById("sug-autor").value.trim();
+  if(!texto) return;
+  const btn = document.getElementById("sug-btn");
+  btn.textContent="Enviando..."; btn.disabled=true;
+  const now = new Date();
+  const data = `${now.getDate()}/${now.getMonth()+1}/${now.getFullYear()}`;
+  const newId = Date.now();
+  try {
+    await fetch(APPS_SCRIPT_URL, {
+      method:"POST", mode:"no-cors",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({action:"addSugestao", id:newId, texto, autor, data}),
+    });
+    document.getElementById("sug-texto").value="";
+    document.getElementById("sug-autor").value="";
+    btn.textContent="Enviado ✓"; 
+    setTimeout(()=>{btn.textContent="Enviar sugestão";btn.disabled=false;},2000);
+    setTimeout(loadSugestoes, 1500);
+  } catch(e) {
+    btn.textContent="Erro — tente novamente"; btn.disabled=false;
+  }
+}
+
+function openSugestoes(){
+  document.getElementById("sug-overlay").classList.add("open");
+  loadSugestoes();
+}
+
+async function init(){
+  try{
+    await loadFromSheets();
+    document.getElementById("loading").style.display="none";
+    document.getElementById("app").style.display="block";
+    render();
+  }catch(e){
+    document.getElementById("loading").style.display="none";
+    document.getElementById("error-box").style.display="block";
+    document.getElementById("error-msg").innerHTML=`Não foi possível carregar os dados. Verifique se:<br>• O ID da planilha está correto: <code>${SHEET_ID}</code><br>• A planilha está publicada como "Qualquer pessoa com o link pode ver"<br>• O nome da aba é exatamente <code>eventos</code><br><br>Erro técnico: ${e.message}`;
+  }
+}
+init();
+</script>
+</body>
+</html>
