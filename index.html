@@ -48,27 +48,27 @@
   .hint-tag { background:#fffbeb; border:1px solid #fcd34d; border-radius:4px; padding:2px 8px; color:#92400e; font-weight:500; font-size:11px; }
 
   /* MONTHS GRID */
-  .months-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(330px,1fr)); gap:18px; }
+  .months-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(520px,1fr)); gap:18px; }
 
   /* MONTH CARD */
   .month-card { background:var(--surface); border:1.5px solid var(--border); border-radius:14px; overflow:hidden; }
-  .month-head { display:flex; align-items:center; justify-content:space-between; padding:13px 15px 11px; border-bottom:1.5px solid var(--border); background:var(--text); color:#fff; }
-  .month-name { font-family:'Fraunces',serif; font-size:16px; font-weight:700; }
-  .month-count { font-size:11px; opacity:0.6; }
+  .month-head { display:flex; align-items:center; justify-content:space-between; padding:15px 18px 13px; border-bottom:1.5px solid var(--border); background:var(--text); color:#fff; }
+  .month-name { font-family:'Fraunces',serif; font-size:20px; font-weight:700; }
+  .month-count { font-size:13px; opacity:0.6; }
   .cal-grid { padding:8px 8px 2px; }
-  .dow-row { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; margin-bottom:3px; }
-  .dow-cell { text-align:center; font-size:9px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase; color:var(--muted); padding:2px 0; }
+  .dow-row { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; margin-bottom:4px; }
+  .dow-cell { text-align:center; font-size:11px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase; color:var(--muted); padding:2px 0; }
   .days-row { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; margin-bottom:2px; }
 
   /* DAY CELL */
-  .day { min-height:46px; border-radius:7px; padding:4px 3px 3px; display:flex; flex-direction:column; gap:2px; position:relative; transition:background 0.1s; }
+  .day { min-height:80px; border-radius:7px; padding:6px 5px 4px; display:flex; flex-direction:column; gap:2px; position:relative; transition:background 0.1s; }
   .day.empty { background:#f0ece5; }
   .day.has-events { background:#fafaf9; border:1px solid var(--border); }
   .day.drag-over { background:#fffbeb !important; border:2px dashed #f59e0b !important; }
-  .day-num { font-size:9px; font-weight:600; color:var(--muted); line-height:1; margin-bottom:1px; }
+  .day-num { font-size:12px; font-weight:600; color:var(--muted); line-height:1; margin-bottom:1px; }
 
   /* PILLS */
-  .pill { border-radius:4px; padding:2px 5px; font-size:9.5px; font-weight:600; line-height:1.35; word-break:break-word; cursor:grab; transition:transform 0.1s, box-shadow 0.1s; border-width:1.5px; border-style:solid; user-select:none; position:relative; }
+  .pill { border-radius:4px; padding:3px 6px; font-size:11px; font-weight:600; line-height:1.35; word-break:break-word; cursor:grab; transition:transform 0.1s, box-shadow 0.1s; border-width:1.5px; border-style:solid; user-select:none; position:relative; }
   .pill:hover { transform:scale(1.03); box-shadow:0 2px 8px rgba(0,0,0,0.14); }
   .pill:hover .pill-actions { display:flex; }
   .pill.dragging { opacity:0.35; cursor:grabbing; }
