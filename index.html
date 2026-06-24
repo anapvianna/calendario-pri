@@ -48,6 +48,7 @@
   .pill:hover { transform:scale(1.02); box-shadow:0 2px 8px rgba(0,0,0,0.14); }
   .pill:hover .pill-actions { display:flex; }
   .pill.dragging { opacity:0.35; cursor:grabbing; }
+  .pill-fmt { display:block; font-size:9px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; opacity:0.6; margin-bottom:1px; }
   .pill-actions { display:none; position:absolute; top:-2px; right:-2px; gap:2px; z-index:10; }
   .pill-btn { width:17px; height:17px; border-radius:3px; border:none; cursor:pointer; font-size:10px; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.7); color:#fff; line-height:1; padding:0; }
   .pill-btn:hover { background:rgba(0,0,0,0.9); }
@@ -132,6 +133,14 @@
     <input type="text" id="modal-label" placeholder="Ex: MI — Nath Mendes 1/5 (lançamento)">
     <label>Categoria</label>
     <select id="modal-cat"></select>
+    <label>Formato</label>
+    <select id="modal-fmt">
+      <option value="">— não definido —</option>
+      <option value="Reels">Reels</option>
+      <option value="Carrossel">Carrossel</option>
+      <option value="Post vídeo">Post vídeo</option>
+      <option value="Post foto">Post foto</option>
+    </select>
     <label>Data</label>
     <input type="date" id="modal-date">
     <div class="modal-actions">
@@ -384,7 +393,7 @@ async function loadFromSheets(){
   if(!res.ok)throw new Error(`HTTP ${res.status}`);
   const text=await res.text();
   const rows=parseCSV(text);
-  events=rows.slice(1).filter(r=>r[0]).map(r=>({id:parseInt(r[0]),date:r[1].trim(),label:r[2].trim(),cat:r[3].trim()}));
+  events=rows.slice(1).filter(r=>r[0]).map(r=>({id:parseInt(r[0]),date:r[1].trim(),label:r[2].trim(),cat:r[3].trim(),fmt:(r[4]||"").trim()}));
   nextId=Math.max(...events.map(e=>e.id),90)+1;
 }
 function parseCSV(text){
@@ -434,6 +443,7 @@ function openModal(mode,opts={}){
   document.getElementById("modal-date").value=opts.date||"";
   document.getElementById("modal-delete").style.display=mode==="edit"?"block":"none";
   document.getElementById("modal-cat").innerHTML=Object.entries(CATS).map(([k,v])=>`<option value="${k}" ${opts.cat===k?'selected':''}>${k} — ${v.label}</option>`).join("");
+  document.getElementById("modal-fmt").value=opts.fmt||"";
   document.getElementById("modal").classList.add("open");
   document.getElementById("modal-label").focus();
 }
@@ -443,10 +453,11 @@ document.getElementById("modal").addEventListener("click",e=>{if(e.target===e.cu
 document.getElementById("modal-save").addEventListener("click",()=>{
   const label=document.getElementById("modal-label").value.trim();
   const cat=document.getElementById("modal-cat").value;
+  const fmt=document.getElementById("modal-fmt").value;
   const date=document.getElementById("modal-date").value;
   if(!label||!date)return;
-  if(modalMode==="edit"){const ev=events.find(e=>e.id===modalTargetId);if(ev){ev.label=label;ev.cat=cat;ev.date=date;}}
-  else{events.push({id:nextId++,date,label,cat});}
+  if(modalMode==="edit"){const ev=events.find(e=>e.id===modalTargetId);if(ev){ev.label=label;ev.cat=cat;ev.fmt=fmt;ev.date=date;}}
+  else{events.push({id:nextId++,date,label,cat,fmt});}
   saveToSheets();closeModal();render();
 });
 document.getElementById("modal-delete").addEventListener("click",()=>{
@@ -479,12 +490,13 @@ function createPill(ev){
   const pill=document.createElement("div");pill.className="pill";pill.dataset.id=ev.id;
   pill.style.cssText=`background:${c.bg};color:${c.color};border-color:${c.border};`;
   if(hiddenCats.has(ev.cat))pill.style.display="none";
+  if(ev.fmt){const f=document.createElement("span");f.className="pill-fmt";f.textContent=ev.fmt;pill.appendChild(f);}
   const txt=document.createElement("span");txt.textContent=ev.label;pill.appendChild(txt);
   const actions=document.createElement("div");actions.className="pill-actions";
   const btnEdit=document.createElement("button");btnEdit.className="pill-btn";btnEdit.title="Editar";btnEdit.textContent="✎";
-  btnEdit.addEventListener("click",e=>{e.stopPropagation();openModal("edit",{id:ev.id,label:ev.label,cat:ev.cat,date:ev.date});});
+  btnEdit.addEventListener("click",e=>{e.stopPropagation();openModal("edit",{id:ev.id,label:ev.label,cat:ev.cat,date:ev.date,fmt:ev.fmt});});
   const btnDup=document.createElement("button");btnDup.className="pill-btn";btnDup.title="Duplicar";btnDup.textContent="+";
-  btnDup.addEventListener("click",e=>{e.stopPropagation();openModal("new",{label:ev.label,cat:ev.cat,date:ev.date});});
+  btnDup.addEventListener("click",e=>{e.stopPropagation();openModal("new",{label:ev.label,cat:ev.cat,date:ev.date,fmt:ev.fmt});});
   const btnDel=document.createElement("button");btnDel.className="pill-btn";btnDel.title="Excluir";btnDel.textContent="✕";btnDel.style.background="rgba(185,28,28,0.8)";
   btnDel.addEventListener("click",e=>{e.stopPropagation();if(!confirm("Excluir este card?"))return;events=events.filter(x=>x.id!==ev.id);saveToSheets();render();});
   actions.appendChild(btnEdit);actions.appendChild(btnDup);actions.appendChild(btnDel);pill.appendChild(actions);
