@@ -58,6 +58,11 @@
   .week-ok { background:#dcfce7; color:#15803d; }
   .week-warn { background:#fef3c7; color:#b45309; }
   .week-bad { background:#fee2e2; color:#dc2626; }
+  .obs-bar { padding:10px 12px 12px; border-top:1px solid #dfc0c0; }
+  .obs-label { font-size:10px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--muted); margin-bottom:6px; }
+  .obs-input { width:100%; border:1.5px solid var(--border); border-radius:8px; padding:8px 10px; font-size:12.5px; font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text); resize:vertical; min-height:40px; line-height:1.5; outline:none; }
+  .obs-input:focus { border-color:var(--text); }
+  .obs-input::placeholder { color:#c9aeae; }
   .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:1000; align-items:center; justify-content:center; }
   .modal-overlay.open { display:flex; }
   .modal { background:var(--surface); border-radius:16px; padding:28px; width:100%; max-width:420px; box-shadow:0 20px 60px rgba(0,0,0,0.2); }
@@ -529,16 +534,39 @@ function render(){
       currentRow.appendChild(dayEl);dayCount++;
     }
     const rem=dayCount%7;if(rem!==0)for(let i=rem;i<7;i++){const e=document.createElement("div");e.className="day empty";currentRow.appendChild(e);}
-    const shownWeeks=new Set();for(let d=1;d<=daysInMonth;d++)shownWeeks.add(getSunday(ds(y,m,d)));
-    const weekBar=document.createElement("div");weekBar.className="week-bar";
-    [...shownWeeks].sort().forEach(wk=>{
-      const cnt=weekMap[wk]||0,wkDate=new Date(wk+"T12:00:00"),end=new Date(wkDate);end.setDate(wkDate.getDate()+6);
-      const tag=document.createElement("span");tag.className="week-tag "+(cnt>=3?"week-ok":cnt>=2?"week-warn":"week-bad");
-      tag.textContent=`${wkDate.getDate()}/${wkDate.getMonth()+1}–${end.getDate()}/${end.getMonth()+1}: ${cnt}`;weekBar.appendChild(tag);
-    });
-    card.appendChild(weekBar);container.appendChild(card);
+    const mesKey=`${y}-${String(m+1).padStart(2,"0")}`;
+    const obsBar=document.createElement("div");obsBar.className="obs-bar";obsBar.dataset.mes=mesKey;
+    const obsLabel=document.createElement("div");obsLabel.className="obs-label";obsLabel.textContent="Observações";
+    const obsInput=document.createElement("textarea");obsInput.className="obs-input";obsInput.rows=2;
+    obsInput.placeholder="Anote algo sobre este mês…";obsInput.value=obsMap[mesKey]||"";
+    obsInput.addEventListener("change",()=>saveObs(mesKey,obsInput.value));
+    obsBar.appendChild(obsLabel);obsBar.appendChild(obsInput);
+    card.appendChild(obsBar);container.appendChild(card);
   });
 }
+let obsMap={};
+const OBS_SEP="⏎";
+async function loadObs(){
+  try{
+    const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=observacoes`;
+    const res=await fetch(url);
+    if(!res.ok)throw new Error("erro");
+    const rows=parseCSV(await res.text());
+    obsMap={};
+    rows.slice(1).filter(r=>r[0]).forEach(r=>{obsMap[r[0].trim()]=(r[1]||"").split(OBS_SEP).join("\n");});
+  }catch(e){obsMap={};}
+}
+async function saveObs(mes,texto){
+  obsMap[mes]=texto;
+  const lbl=document.querySelector(`.obs-bar[data-mes="${mes}"] .obs-label`);
+  if(lbl)lbl.textContent="salvando…";
+  const stored=texto.replace(/\r?\n/g,OBS_SEP);
+  try{
+    await fetch(APPS_SCRIPT_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"saveObs",mes,texto:stored})});
+    if(lbl){lbl.textContent="salvo ✓";setTimeout(()=>{if(lbl)lbl.textContent="Observações";},2000);}
+  }catch(e){if(lbl)lbl.textContent="erro ao salvar";}
+}
+
 const SHEET_NAME_SUG = "sugestoes";
 
 async function loadSugestoes(){
@@ -718,6 +746,7 @@ function openTodo(){
 async function init(){
   try{
     await loadFromSheets();
+    await loadObs();
     document.getElementById("loading").style.display="none";
     document.getElementById("app").style.display="block";
     render();
