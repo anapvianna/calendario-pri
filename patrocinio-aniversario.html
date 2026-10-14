@@ -1,498 +1,389 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Apoios do Aniversário Selfcare</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Fraunces:ital,wght@0,600;1,400&display=swap">
 <style>
-/* Layout: uma coluna de leitura com índice fixo no topo; cronograma em trilha vertical, mensagens em blocos copiáveis */
+/* Layout: cabeçalho curto + abas; cada aba responde uma pergunta só */
 :root {
   --bg:#f9f0f0; --surface:#fdf6f6; --raised:#ffffff; --border:#e8d0d0; --text:#3d2424; --muted:#8f6e6e; --accent:#7d4a4a; --accent-soft:#f1dede;
-  --ok:#2f6b4f; --ok-soft:#e1f0e7; --warn:#8a5a12; --warn-soft:#fbefd9;
+  --ana:#7d4a4a; --ana-soft:#f1dede; --nath:#3f6a5c; --nath-soft:#e0eee8; --pri:#8a5a12; --pri-soft:#fbefd9;
   --display:'Fraunces', Georgia, 'Times New Roman', serif;
   --body:'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg:#1f1616; --surface:#281d1d; --raised:#302323; --border:#4a3535; --text:#f3e6e6; --muted:#b99c9c; --accent:#e0a9a9; --accent-soft:#3b2a2a;
-  --ok:#8fd1ad; --ok-soft:#1f3329; --warn:#f0c27a; --warn-soft:#3a2d18; color-scheme:dark } }
+  --ana:#e0a9a9; --ana-soft:#3b2a2a; --nath:#9fd4c1; --nath-soft:#1e322b; --pri:#f0c27a; --pri-soft:#3a2d18; color-scheme:dark } }
 :root[data-theme="dark"] {
   --bg:#1f1616; --surface:#281d1d; --raised:#302323; --border:#4a3535; --text:#f3e6e6; --muted:#b99c9c; --accent:#e0a9a9; --accent-soft:#3b2a2a;
-  --ok:#8fd1ad; --ok-soft:#1f3329; --warn:#f0c27a; --warn-soft:#3a2d18; color-scheme:dark }
+  --ana:#e0a9a9; --ana-soft:#3b2a2a; --nath:#9fd4c1; --nath-soft:#1e322b; --pri:#f0c27a; --pri-soft:#3a2d18; color-scheme:dark }
 
 * { box-sizing:border-box; }
+html, body { margin:0; }
 body { background:var(--bg); color:var(--text); font-family:var(--body); font-size:15.5px; line-height:1.6; }
-.wrap { max-width:860px; margin:0 auto; padding-block:28px 72px; padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px)); display:grid; gap:44px; }
-h1, h2, h3 { font-family:var(--display); font-weight:600; line-height:1.15; text-wrap:balance; margin:0; }
-h1 { font-size:clamp(28px, 5vw, 40px); }
-h1 em, h2 em { font-style:italic; font-weight:400; }
-h2 { font-size:26px; margin-bottom:6px; }
-h3 { font-size:18px; }
-p { margin:0; max-width:68ch; }
+.wrap { max-width:820px; margin:0 auto; padding-block:28px 72px; padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3 { font-family:var(--display); font-weight:600; line-height:1.2; text-wrap:balance; margin:0; }
+h1 { font-size:clamp(26px, 5vw, 36px); }
+h1 em { font-style:italic; font-weight:400; }
+h2 { font-size:23px; }
+h3 { font-size:17px; }
+p { margin:0; max-width:66ch; }
 a { color:var(--accent); }
+.muted { color:var(--muted); }
 .eyebrow { font-size:11.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-weight:600; }
-.lead { color:var(--muted); max-width:68ch; }
-section { display:grid; gap:16px; scroll-margin-top:64px; }
 
-header.top { display:grid; gap:14px; padding-bottom:22px; border-bottom:2px solid var(--accent); }
-.facts { display:flex; flex-wrap:wrap; gap:8px; }
-.fact { background:var(--surface); border:1.5px solid var(--border); border-radius:10px; padding:8px 13px; font-size:13px; }
-.fact strong { display:block; font-family:var(--display); font-size:17px; }
+header { display:grid; gap:12px; padding-bottom:18px; border-bottom:2px solid var(--accent); }
+.chips { display:flex; flex-wrap:wrap; gap:8px; }
+.chip { background:var(--surface); border:1.5px solid var(--border); border-radius:20px; padding:3px 12px; font-size:13px; }
 
-nav.toc { position:sticky; top:env(safe-area-inset-top, 0px); z-index:5; background:var(--bg); border-bottom:1px solid var(--border); margin-top:-30px; padding:10px 0; display:flex; gap:6px; overflow-x:auto; scrollbar-width:none; }
-nav.toc a { flex:none; font-size:13px; font-weight:500; text-decoration:none; color:var(--text); background:var(--surface); border:1.5px solid var(--border); border-radius:20px; padding:4px 12px; }
-nav.toc a:hover, nav.toc a:focus-visible { border-color:var(--accent); outline:none; }
+.tabs { position:sticky; top:env(safe-area-inset-top, 0px); z-index:5; background:var(--bg); display:flex; gap:6px; overflow-x:auto; scrollbar-width:none; padding:12px 0; border-bottom:1px solid var(--border); margin-bottom:24px; }
+.tabs button { flex:none; font:500 13.5px var(--body); color:var(--text); background:var(--surface); border:1.5px solid var(--border); border-radius:20px; padding:5px 14px; cursor:pointer; }
+.tabs button[aria-selected="true"] { background:var(--accent); border-color:var(--accent); color:var(--bg); }
+.tabs button:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
 
-.callout { background:var(--accent-soft); border-radius:12px; padding:16px 18px; display:grid; gap:8px; }
-.callout.warn { background:var(--warn-soft); }
-.callout.warn .eyebrow { color:var(--warn); }
+.panel-tab { display:grid; gap:22px; }
+.block { display:grid; gap:10px; }
+.card { background:var(--surface); border:1.5px solid var(--border); border-radius:12px; padding:16px 18px; display:grid; gap:8px; align-content:start; min-width:0; }
+.cards { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; }
+ul, ol { margin:0; padding-left:20px; display:grid; gap:6px; }
 
-.grid2 { display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:12px; }
-.panel { background:var(--surface); border:1.5px solid var(--border); border-radius:12px; padding:16px 18px; display:grid; gap:8px; align-content:start; min-width:0; }
-.panel ul, .list { margin:0; padding-left:18px; display:grid; gap:5px; }
+.big { font-family:var(--display); font-size:20px; line-height:1.4; max-width:40ch; }
+.big em { font-style:italic; font-weight:400; color:var(--accent); }
 
-/* cronograma */
-.timeline { display:grid; gap:0; border-left:2px solid var(--border); margin-left:6px; }
-.wk { position:relative; padding:0 0 22px 22px; display:grid; gap:6px; }
-.wk::before { content:""; position:absolute; left:-7px; top:6px; width:12px; height:12px; border-radius:50%; background:var(--bg); border:2px solid var(--accent); }
-.wk.now::before { background:var(--accent); }
-.wk.key::before { background:var(--warn); border-color:var(--warn); }
-.wk .when { font-size:12.5px; font-weight:600; color:var(--accent); font-variant-numeric:tabular-nums; letter-spacing:.02em; }
-.wk h3 { font-size:17px; }
-.wk ul { margin:0; padding-left:18px; display:grid; gap:4px; }
-.who { display:inline-block; font-size:11px; font-weight:600; border-radius:4px; padding:0 6px; margin-right:4px; background:var(--accent-soft); color:var(--accent); vertical-align:1px; }
+.who { display:inline-block; font-size:11.5px; font-weight:600; border-radius:5px; padding:0 7px; white-space:nowrap; }
+.who.ana { background:var(--ana-soft); color:var(--ana); }
+.who.nath { background:var(--nath-soft); color:var(--nath); }
+.who.pri { background:var(--pri-soft); color:var(--pri); }
+.who.ambas { background:var(--raised); color:var(--text); border:1px solid var(--border); }
+.person h3 { display:flex; align-items:center; gap:8px; }
+.person.ana { border-top:4px solid var(--ana); }
+.person.nath { border-top:4px solid var(--nath); }
+.person.pri { border-top:4px solid var(--pri); }
 
-/* tabela de prospecção */
-.table-scroll { overflow-x:auto; border:1.5px solid var(--border); border-radius:12px; background:var(--surface); }
-table { border-collapse:collapse; width:100%; min-width:720px; font-size:14px; }
-th, td { text-align:left; padding:10px 12px; border-bottom:1px solid var(--border); vertical-align:top; }
-th { font-size:11.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); font-weight:600; background:var(--raised); }
-tr:last-child td { border-bottom:0; }
-td.name { font-weight:600; white-space:nowrap; }
-.pill { display:inline-block; font-size:11.5px; font-weight:600; border-radius:20px; padding:1px 9px; white-space:nowrap; }
-.pill.p1 { background:var(--warn-soft); color:var(--warn); }
-.pill.p2 { background:var(--accent-soft); color:var(--accent); }
-.pill.ok { background:var(--ok-soft); color:var(--ok); }
+/* caminho de cada marca */
+.flow { list-style:none; padding:0; display:grid; gap:0; counter-reset:f; }
+.flow li { counter-increment:f; display:grid; grid-template-columns:34px 1fr; gap:12px; padding-bottom:16px; position:relative; }
+.flow li::before { content:counter(f); width:30px; height:30px; border-radius:50%; background:var(--accent); color:var(--bg); font:600 14px var(--display); display:grid; place-items:center; }
+.flow li:not(:last-child)::after { content:""; position:absolute; left:14px; top:32px; bottom:2px; width:2px; background:var(--border); }
+.flow strong { display:block; }
 
-/* mensagens */
-.msg { background:var(--surface); border:1.5px solid var(--border); border-radius:12px; overflow:hidden; min-width:0; }
-.msg-head { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:10px; padding:12px 16px; border-bottom:1px solid var(--border); background:var(--raised); }
-.msg-head .meta { display:grid; gap:2px; min-width:0; }
-.msg-head .meta span { font-size:12.5px; color:var(--muted); }
-.msg pre { margin:0; padding:16px; white-space:pre-wrap; word-wrap:break-word; font-family:var(--body); font-size:14.5px; line-height:1.6; color:var(--text); }
-button.copy { font:600 12.5px var(--body); color:var(--accent); background:var(--surface); border:1.5px solid var(--border); border-radius:8px; padding:6px 12px; cursor:pointer; }
+.note { background:var(--accent-soft); border-radius:10px; padding:12px 16px; font-size:14.5px; }
+
+.week { display:grid; grid-template-columns:120px 1fr; gap:4px 16px; padding:14px 0; border-bottom:1px solid var(--border); }
+.week:last-child { border-bottom:0; }
+.week .when { font-weight:600; color:var(--accent); font-variant-numeric:tabular-nums; font-size:14px; }
+.week.key .when::after { content:" ★"; color:var(--pri); }
+.week ul { list-style:none; padding:0; gap:5px; }
+@media (max-width:520px) { .week { grid-template-columns:1fr; } }
+
+.todo { list-style:none; padding:0; gap:8px; }
+.todo li { display:grid; grid-template-columns:auto 1fr; gap:10px; align-items:baseline; background:var(--surface); border:1.5px solid var(--border); border-radius:10px; padding:10px 14px; }
+
+.brand { display:grid; gap:6px; }
+.brand .top { display:flex; justify-content:space-between; align-items:baseline; gap:8px; flex-wrap:wrap; }
+.brand dl { margin:0; display:grid; grid-template-columns:auto 1fr; gap:3px 10px; font-size:14px; }
+.brand dt { color:var(--muted); }
+.brand dd { margin:0; }
+
+details.msg { background:var(--surface); border:1.5px solid var(--border); border-radius:12px; overflow:hidden; }
+details.msg summary { cursor:pointer; list-style:none; padding:13px 16px; display:flex; justify-content:space-between; gap:10px; align-items:center; }
+details.msg summary::-webkit-details-marker { display:none; }
+details.msg summary::after { content:"+"; font:400 20px var(--display); color:var(--accent); }
+details.msg[open] summary::after { content:"–"; }
+details.msg summary span.t { font-weight:600; }
+details.msg summary span.s { display:block; font-size:13px; color:var(--muted); font-weight:400; }
+.msg-body { border-top:1px solid var(--border); }
+.msg-body pre { margin:0; padding:16px; white-space:pre-wrap; word-wrap:break-word; font:14.5px/1.6 var(--body); color:var(--text); }
+.msg-body .bar { display:flex; justify-content:flex-end; padding:0 16px 14px; }
+button.copy { font:600 13px var(--body); color:var(--accent); background:var(--raised); border:1.5px solid var(--border); border-radius:8px; padding:6px 14px; cursor:pointer; }
 button.copy:hover, button.copy:focus-visible { border-color:var(--accent); outline:none; }
-button.copy.done { color:var(--ok); border-color:var(--ok); }
-.ph { background:var(--warn-soft); color:var(--warn); border-radius:3px; padding:0 3px; }
 
-.forms-opts { display:grid; gap:8px; counter-reset:o; }
-.forms-opts div { background:var(--surface); border:1.5px solid var(--border); border-radius:10px; padding:10px 14px; display:grid; grid-template-columns:auto 1fr; gap:4px 12px; }
-.forms-opts b { font-family:var(--display); font-size:15px; }
-.forms-opts small { grid-column:2; color:var(--muted); font-size:13px; }
-.forms-opts .tag { grid-row:span 2; align-self:start; font-size:11px; font-weight:700; color:var(--accent); background:var(--accent-soft); border-radius:6px; padding:3px 7px; }
+.opts { display:grid; gap:8px; }
+.opt { display:grid; grid-template-columns:30px 1fr auto; gap:10px; align-items:center; background:var(--surface); border:1.5px solid var(--border); border-radius:10px; padding:10px 14px; }
+.opt .l { font:600 15px var(--display); color:var(--accent); }
+.opt .c { font-size:12px; font-weight:600; border-radius:20px; padding:1px 9px; white-space:nowrap; }
+.opt .c.sim { background:var(--nath-soft); color:var(--nath); }
+.opt .c.nao { background:var(--raised); color:var(--muted); border:1px solid var(--border); }
+code { font-size:13px; background:var(--accent-soft); padding:1px 5px; border-radius:4px; }
 
-footer { font-size:13px; color:var(--muted); border-top:1px solid var(--border); padding-top:16px; }
-@media (prefers-reduced-motion: reduce) { * { scroll-behavior:auto !important; } }
-html { scroll-behavior:smooth; }
+footer { margin-top:40px; font-size:13px; color:var(--muted); border-top:1px solid var(--border); padding-top:14px; }
 </style>
-
+</head>
+<body>
 <div class="wrap">
 
-<header class="top">
-  <div class="eyebrow">Selfcare by Pri Buiar · Plano de captação · atualizado em 14/10</div>
-  <h1>Aniversário Selfcare: <em>apoios e patrocínios</em></h1>
-  <p class="lead">Plano para buscar marcas e estabelecimentos que apoiem o encontro anual. Todo o lucro vai para o Instituto da Criança, que já autorizou o uso do nome e do logo na divulgação e na abordagem aos parceiros.</p>
-  <div class="facts">
-    <div class="fact"><strong>20 ou 22/nov</strong>data final até 25/10</div>
-    <div class="fact"><strong>Villa Morena</strong>manhã até meio da tarde</div>
-    <div class="fact"><strong>R$ 50</strong>participação, doação livre</div>
-    <div class="fact"><strong>~50 pessoas</strong>estimativa (tapetes de 2025)</div>
-    <div class="fact"><strong>5 semanas</strong>de hoje até o evento</div>
+<header>
+  <div class="eyebrow">Selfcare by Pri Buiar · Encontro de 3 anos</div>
+  <h1>Apoios do <em>aniversário</em></h1>
+  <p class="muted">Guia para a gente buscar marcas que apoiem o encontro. Todo o lucro vai para o Instituto da Criança.</p>
+  <div class="chips">
+    <span class="chip">20 ou 22/nov (sai em 25/10)</span>
+    <span class="chip">Villa Morena, Rio</span>
+    <span class="chip">~50 participantes</span>
+    <span class="chip">Equipe: Ana e Nath</span>
   </div>
 </header>
 
-<nav class="toc" aria-label="Seções">
-  <a href="#estrategia">Estratégia</a>
-  <a href="#perfil">Qual perfil</a>
-  <a href="#cronograma">Cronograma</a>
-  <a href="#marcas">Marcas</a>
-  <a href="#mensagens">Mensagens</a>
-  <a href="#forms">Forms</a>
-  <a href="#atividades">Atividades</a>
-  <a href="#pendencias">Pendências</a>
+<nav class="tabs" role="tablist" aria-label="Seções">
+  <button role="tab" id="t-como" aria-controls="como" aria-selected="true">Como funciona</button>
+  <button role="tab" id="t-semana" aria-controls="semana" aria-selected="false">Esta semana</button>
+  <button role="tab" id="t-crono" aria-controls="crono" aria-selected="false">Cronograma</button>
+  <button role="tab" id="t-marcas" aria-controls="marcas" aria-selected="false">Marcas</button>
+  <button role="tab" id="t-msgs" aria-controls="msgs" aria-selected="false">Mensagens</button>
+  <button role="tab" id="t-forms" aria-controls="forms" aria-selected="false">Forms</button>
 </nav>
 
-<!-- ESTRATÉGIA -->
-<section id="estrategia">
-  <div class="eyebrow">A lógica da abordagem</div>
-  <h2>O argumento principal</h2>
-  <p><strong>Cada coisa que uma marca doa vira dinheiro a mais para o Instituto da Criança.</strong> O valor da inscrição cobre café, materiais e espaço; o que a gente não precisar comprar porque veio de apoio vira lucro, e o lucro vai inteiro para o Instituto. Esse é o argumento mais forte que temos, porque transforma um pedido de brinde em participação numa causa, com um resultado que dá para medir e contar depois.</p>
+<!-- COMO FUNCIONA -->
+<section class="panel-tab" id="como" role="tabpanel" aria-labelledby="t-como">
+  <div class="block">
+    <div class="eyebrow">A ideia em uma frase</div>
+    <p class="big">Pedimos produtos e comida para marcas. <em>Tudo que for doado é dinheiro a mais para o Instituto da Criança.</em></p>
+  </div>
 
-  <div class="grid2">
-    <div class="panel">
-      <h3>O que a gente pede</h3>
-      <ul>
-        <li><strong>Produto para o kit</strong>: ~50 unidades (mini, amostra ou tamanho normal)</li>
-        <li><strong>Comida e bebida</strong>: café da manhã, lanche ou almoço leve, inteiro ou em parte</li>
-        <li><strong>Ativação no local</strong>: estação da marca, experimentação, mini-experiência</li>
-        <li><strong>Empréstimo de material</strong>: tapetes, utensílios, estrutura</li>
-        <li><strong>Doação direta</strong> ao Instituto, em nome da marca</li>
-      </ul>
-    </div>
-    <div class="panel">
-      <h3>O que a gente oferece em troca</h3>
-      <ul>
-        <li>Logo e marcação nas artes de divulgação do evento</li>
-        <li>Stories antes, durante e depois, no perfil do projeto e no da Pri</li>
-        <li>Marcação no reels de retrospectiva do evento</li>
-        <li>Contato direto com ~50 mulheres engajadas em autocuidado, do público exato dessas marcas</li>
-        <li>Associação pública a uma causa (Instituto da Criança), com o valor final arrecadado divulgado</li>
-        <li>Relatório curto pós-evento com fotos e números</li>
-      </ul>
+  <div class="block">
+    <h2>Quem faz o quê</h2>
+    <div class="cards">
+      <div class="card person ana">
+        <h3><span class="who ana">Ana</span>Marcas maiores</h3>
+        <p>Lola, Sol de Janeiro, Yorgus e Mais Mu. Também abre o forms quando a data sair.</p>
+      </div>
+      <div class="card person nath">
+        <h3><span class="who nath">Nath</span>Parceiros locais</h3>
+        <p>Yogateria, João Padeiro, Santa Marta e Bamba. Também cuida das entregas no dia.</p>
+      </div>
+      <div class="card person pri">
+        <h3><span class="who pri">Pri</span>Só abre a porta</h3>
+        <p>Recebe da gente as DMs prontas e envia pelo Instagram dela. Não precisa responder nem negociar.</p>
+      </div>
     </div>
   </div>
 
-  <div class="callout">
-    <div class="eyebrow">Três regras que aumentam a taxa de resposta</div>
-    <ul class="list">
-      <li><strong>Pedido específico.</strong> "50 minis para o kit das participantes" recebe mais sim do que "algum apoio". Sempre ofereça 2 ou 3 formas de ajudar, para a marca escolher a mais fácil.</li>
-      <li><strong>Prazo claro.</strong> Diga até quando precisa da resposta (sugestão: 6/11) e quando o produto teria que chegar (até 17/11).</li>
-      <li><strong>Marcas grandes primeiro.</strong> Lola e Sol de Janeiro passam por time de PR ou de influência e demoram mais. Os estabelecimentos locais decidem em dias. Por isso as grandes saem nesta semana.</li>
-    </ul>
+  <div class="block">
+    <h2>O caminho de cada marca</h2>
+    <ol class="flow">
+      <li><div><strong>A gente prepara a DM</strong><span class="muted">Ana ou Nath copiam a mensagem da aba Mensagens, ajustam o nome da marca e mandam para a Pri no WhatsApp.</span></div></li>
+      <li><div><strong>A Pri envia do @pribuiar</strong><span class="muted">O alcance dela faz a marca ler. A DM já avisa que a equipe do Selfcare vai continuar a conversa.</span></div></li>
+      <li><div><strong>A gente conduz pelo Selfcare</strong><span class="muted">Quando a marca responder, seguimos pelo @selfcarebypribuiar ou pelo e-mail do Selfcare, com a apresentação em anexo.</span></div></li>
+      <li><div><strong>Fechou: confirmar e combinar</strong><span class="muted">Mandar a mensagem de confirmação, pedir o logo e combinar a entrega até 17/11.</span></div></li>
+    </ol>
+    <p class="note">Se a marca responder direto para a Pri, ela só manda o print no grupo e a gente assume. A Yogateria é exceção: vai direto por e-mail do Selfcare, continuando a conversa de 2025.</p>
   </div>
 </section>
 
-<!-- PERFIL -->
-<section id="perfil">
-  <div class="eyebrow">Decisão</div>
-  <h2>Perfil do projeto ou <em>perfil da Pri?</em></h2>
-  <p><strong>Recomendação: a Pri abre a porta, o projeto conduz a conversa.</strong> O primeiro contato sai do perfil da Pri, que é conhecida e tem o alcance que a marca vai avaliar. Depois da primeira resposta, o projeto (Aninha) assume por e-mail ou WhatsApp com a apresentação, prazos e logística, para a Pri não virar gargalo.</p>
-
-  <div class="grid2">
-    <div class="panel">
-      <h3>Por que a Pri na abertura</h3>
-      <ul>
-        <li>DM de uma pessoa conhecida é lida; DM de perfil menor costuma cair em "solicitações" e ficar lá.</li>
-        <li>Times de marca checam o alcance de quem escreve antes de responder. O número da Pri é o nosso melhor cartão de visita.</li>
-        <li>A causa ganha rosto. "Eu, Pri, estou organizando" convence mais do que "o projeto está organizando".</li>
-      </ul>
-    </div>
-    <div class="panel">
-      <h3>Por que o projeto na condução</h3>
-      <ul>
-        <li>Mantém a parceria ligada à marca Selfcare, que é o que a gente quer fortalecer (está no plano de conteúdo de 2026).</li>
-        <li>Centraliza prazos, endereços, logos e entregas num lugar só.</li>
-        <li>A marca segue no radar do projeto para os próximos eventos.</li>
-      </ul>
-    </div>
+<!-- ESTA SEMANA -->
+<section class="panel-tab" id="semana" role="tabpanel" aria-labelledby="t-semana" hidden>
+  <div class="block">
+    <div class="eyebrow">14 a 18 de outubro</div>
+    <h2>O que fazer agora</h2>
+    <p class="muted">As marcas grandes demoram mais para responder, por isso saem primeiro.</p>
   </div>
-
-  <div class="callout warn">
-    <div class="eyebrow">Cuidado com um risco</div>
-    <p>Quando uma influenciadora conhecida escreve, algumas marcas respondem com proposta de publi paga ou pedem mídia kit comercial. Para evitar isso, a mensagem deixa claro desde a primeira linha que é um <strong>evento beneficente da comunidade</strong>, com lucro para o Instituto da Criança, e não uma proposta comercial.</p>
-  </div>
-
-  <div class="grid2">
-    <div class="panel">
-      <h3>Marcas grandes</h3>
-      <p>DM da Pri <strong>e</strong> e-mail de parcerias/PR no mesmo dia. A DM pede o contato certo; o e-mail já leva a proposta completa.</p>
-    </div>
-    <div class="panel">
-      <h3>Estabelecimentos locais</h3>
-      <p>DM da Pri, curta e pessoal. Se a Pri conhecer o dono ou frequentar o lugar, vale mencionar. Em seguida, Aninha passa os detalhes.</p>
-    </div>
-  </div>
+  <ul class="todo">
+    <li><span class="who ana">Ana</span><span>Preencher os números de seguidoras e alcance dos dois perfis no <a href="https://claude.ai/code/artifact/b96485a8-f9b2-4048-aa96-cb5eacf483c9" target="_blank" rel="noopener">documento de apresentação</a> e exportar em PDF.</span></li>
+    <li><span class="who ana">Ana</span><span>Mandar para a Pri as DMs da Lola e da Sol de Janeiro.</span></li>
+    <li><span class="who ana">Ana</span><span>Achar o e-mail de parcerias das duas marcas (site ou bio) e enviar a proposta com o PDF.</span></li>
+    <li><span class="who nath">Nath</span><span>Responder o e-mail de 2025 da Yogateria pedindo os tapetes de novo.</span></li>
+    <li><span class="who nath">Nath</span><span>Perguntar para a Carol quantos marcadores de tricô ela consegue fazer e até quando.</span></li>
+    <li><span class="who ambas">Ana e Nath</span><span>Rodar o script do forms e deixar tudo pronto, só esperando a data.</span></li>
+  </ul>
 </section>
 
 <!-- CRONOGRAMA -->
-<section id="cronograma">
-  <div class="eyebrow">14/10 a 29/11</div>
-  <h2>Cronograma</h2>
-  <p class="lead">A prospecção começa já, antes da data final. Dá para abordar as marcas dizendo "20 ou 22 de novembro, data confirmada até 25/10"; nenhuma marca recusa por isso.</p>
-
-  <div class="timeline">
-    <div class="wk now">
-      <div class="when">Qua 14/10 a sáb 18/10 · esta semana</div>
-      <h3>Preparar e disparar as marcas grandes</h3>
-      <ul>
-        <li><span class="who">Aninha</span>Juntar números: seguidoras da Pri e do projeto, alcance médio de stories, quantas pessoas foram em 2025.</li>
-        <li><span class="who">Aninha</span>Montar uma apresentação de 1 página (PDF): o evento, o Instituto, o público, o que pedimos, o que oferecemos, fotos de 2025.</li>
-        <li><span class="who">Pri</span>Responder o fio de e-mail de 2025 com a Yogateria pedindo os tapetes de novo.</li>
-        <li><span class="who">Pri</span>DM para Lola Cosmetics e Sol de Janeiro.</li>
-        <li><span class="who">Aninha</span>Achar o e-mail de parcerias/PR das duas (site, bio, LinkedIn) e enviar a proposta completa.</li>
-        <li><span class="who">Aninha</span>Pedir à Carol a quantidade de marcadores de tricô que ela consegue fazer e o prazo.</li>
-      </ul>
-    </div>
-    <div class="wk">
-      <div class="when">Seg 19/10 a dom 25/10</div>
-      <h3>Comida e data final</h3>
-      <ul>
-        <li><span class="who">Pri</span>DMs para João Padeiro, Santa Marta, Yorgus, Bamba e Mais Mu.</li>
-        <li><span class="who">Aninha</span>Primeiro follow-up nas marcas grandes (5 dias úteis após o envio).</li>
-        <li><span class="who">Aninha</span>Pesquisar ateliê ou fornecedor de xícaras de cerâmica para pintar; pedir apoio ou desconto.</li>
-        <li><span class="who">Aninha</span>Deixar o forms de inscrição pronto (só falta a data).</li>
-        <li><span class="who">Pri</span><strong>25/10: dona da Villa Morena confirma a data.</strong></li>
-      </ul>
-    </div>
-    <div class="wk key">
-      <div class="when">Seg 26/10 a dom 1/11</div>
-      <h3>Abrir inscrições e fechar acordos</h3>
-      <ul>
-        <li><span class="who">Aninha</span>Abrir o forms assim que a data sair e divulgar no projeto e nos stories da Pri.</li>
-        <li><span class="who">Aninha</span>Avisar todas as marcas em conversa sobre a data final.</li>
-        <li><span class="who">Aninha</span>Follow-up nos locais que não responderam; lista B se alguém recusar (ver abaixo).</li>
-        <li><span class="who">Ambas</span>Montar o cardápio com o que já entrou e ver o que falta comprar.</li>
-      </ul>
-    </div>
-    <div class="wk key">
-      <div class="when">Seg 2/11 a dom 8/11</div>
-      <h3>Prazo final dos apoios: sexta 6/11</h3>
-      <ul>
-        <li><span class="who">Aninha</span>Último follow-up até quarta 4/11. Quem não respondeu até 6/11 sai da lista deste ano.</li>
-        <li><span class="who">Aninha</span>Pedir logos em alta para todos os confirmados.</li>
-        <li><span class="who">Aninha</span>Combinar entrega/retirada de cada apoio: data, endereço, contato.</li>
-      </ul>
-    </div>
-    <div class="wk">
-      <div class="when">Seg 9/11 a dom 15/11</div>
-      <h3>Divulgar parceiros e montar kits</h3>
-      <ul>
-        <li><span class="who">Aninha</span>Post ou carrossel "quem está com a gente", marcando todas as marcas.</li>
-        <li><span class="who">Pri</span>Stories agradecendo os parceiros (é a contrapartida mais valorizada).</li>
-        <li><span class="who">Ambas</span>Receber produtos e montar os kits com o marcador da Carol.</li>
-      </ul>
-    </div>
-    <div class="wk">
-      <div class="when">Seg 16/11 até o evento</div>
-      <h3>Confirmações e dia do evento</h3>
-      <ul>
-        <li><span class="who">Aninha</span>Dois dias antes: confirmar entregas de comida (horário e quem recebe).</li>
-        <li><span class="who">Ambas</span>No dia: stories marcando cada marca no momento em que aparece (café, kit, yoga, cerâmica).</li>
-        <li><span class="who">Aninha</span>Fotografar cada apoio em uso, para o relatório e para os próprios parceiros repostarem.</li>
-      </ul>
-    </div>
-    <div class="wk">
-      <div class="when">Até 7 dias depois</div>
-      <h3>Fechamento</h3>
-      <ul>
-        <li><span class="who">Aninha</span>Reels de retrospectiva marcando os parceiros.</li>
-        <li><span class="who">Pri</span>Anunciar o valor total doado ao Instituto da Criança.</li>
-        <li><span class="who">Aninha</span>Mensagem de agradecimento com fotos e o valor arrecadado para cada parceiro. É o que garante o "sim" no ano que vem.</li>
-      </ul>
-    </div>
+<section class="panel-tab" id="crono" role="tabpanel" aria-labelledby="t-crono" hidden>
+  <div class="block">
+    <h2>Cronograma</h2>
+    <p class="muted">★ marca as datas que não podem escorregar.</p>
+  </div>
+  <div>
+    <div class="week"><div class="when">14 a 18/out</div><ul><li>Apresentação pronta, DMs e e-mails das marcas grandes, e-mail da Yogateria.</li></ul></div>
+    <div class="week"><div class="when">19 a 25/out</div><ul><li>DMs dos locais (comida). Primeiro follow-up das marcas grandes.</li><li>Procurar ateliê para as xícaras de cerâmica.</li></ul></div>
+    <div class="week key"><div class="when">25/out</div><ul><li>Data final confirmada. Abrir o forms e divulgar.</li></ul></div>
+    <div class="week"><div class="when">26/out a 1/nov</div><ul><li>Avisar a data para as marcas em conversa. Fechar acordos e montar o cardápio com o que entrou.</li></ul></div>
+    <div class="week key"><div class="when">6/nov</div><ul><li>Prazo final para as marcas confirmarem e mandarem o logo. Quem não respondeu sai da lista deste ano.</li></ul></div>
+    <div class="week"><div class="when">9 a 15/nov</div><ul><li>Post agradecendo os parceiros. Receber produtos e montar os kits.</li></ul></div>
+    <div class="week key"><div class="when">17/nov</div><ul><li>Prazo para todos os produtos chegarem.</li></ul></div>
+    <div class="week"><div class="when">Dia do evento</div><ul><li>Stories marcando cada parceiro. Fotos de cada apoio em uso.</li></ul></div>
+    <div class="week"><div class="when">Até 7 dias depois</div><ul><li>Reels de retrospectiva, valor arrecadado divulgado e agradecimento para cada marca.</li></ul></div>
   </div>
 </section>
 
 <!-- MARCAS -->
-<section id="marcas">
-  <div class="eyebrow">Prospecção</div>
-  <h2>Marcas e o que pedir para cada uma</h2>
-  <p class="lead">Prioridade 1 sai nesta semana. O pedido sugerido é o ponto de partida; a mensagem sempre oferece alternativas.</p>
-
-  <div class="table-scroll">
-    <table>
-      <thead><tr><th>Marca</th><th>Prioridade</th><th>Pedido principal</th><th>Alternativa</th><th>Gancho</th></tr></thead>
-      <tbody>
-        <tr><td class="name"><a href="mailto:parceria@yogateria.com.br">Yogateria</a></td><td><span class="pill ok">já parceira</span></td><td>Empréstimo de ~50 tapetes, como em 2025</td><td>Algum brinde ou cupom para as participantes</td><td>Continuação do e-mail de 2025; amigos da professora. E-mail: parceria@yogateria.com.br</td></tr>
-        <tr><td class="name"><a href="https://www.instagram.com/lolacosmetics/" target="_blank" rel="noopener">Lola Cosmetics</a></td><td><span class="pill p1">1 · esta semana</span></td><td>~50 minis ou produtos para o kit</td><td>Estação de cuidado (cabelo/corpo) no evento</td><td>Marca carioca, de comunicação próxima e feminina; combina com autocuidado e evento no Rio</td></tr>
-        <tr><td class="name"><a href="https://www.instagram.com/soldejaneiro/" target="_blank" rel="noopener">Sol de Janeiro</a></td><td><span class="pill p1">1 · esta semana</span></td><td>Amostras de perfume/body mist para o kit</td><td>"Perfume bar" no evento</td><td>Marca com raiz brasileira e forte em experiência sensorial; pedir minis, que eles já produzem</td></tr>
-        <tr><td class="name"><a href="https://www.instagram.com/joaopadeiroeco/" target="_blank" rel="noopener">João Padeiro</a></td><td><span class="pill p2">2 · próxima semana</span></td><td>Pães para o café da manhã</td><td>Desconto na encomenda</td><td>Negócio local; visibilidade direta para clientes do bairro</td></tr>
-        <tr><td class="name"><a href="https://www.instagram.com/santamartapadaria/" target="_blank" rel="noopener">Santa Marta</a></td><td><span class="pill p2">2 · próxima semana</span></td><td>Bolos, doces ou salgados para o lanche</td><td>Desconto na encomenda</td><td>Negócio local. Pedir uma coisa diferente da do João Padeiro, para as duas poderem dizer sim</td></tr>
-        <tr><td class="name"><a href="https://www.instagram.com/yorgusgrego/" target="_blank" rel="noopener">Yorgus</a></td><td><span class="pill p2">2 · próxima semana</span></td><td>Iogurtes para o café da manhã</td><td>Unidades para o kit</td><td>Alimentação saudável, ligada a bem-estar</td></tr>
-        <tr><td class="name"><a href="https://www.instagram.com/bambadobrasil/" target="_blank" rel="noopener">Bamba</a></td><td><span class="pill p2">2 · próxima semana</span></td><td>Produtos para o café/lanche</td><td>Unidades para o kit</td><td>Confirmar no perfil o que oferecem antes de escrever, e citar o produto pelo nome</td></tr>
-        <tr><td class="name"><a href="https://www.instagram.com/maismu/" target="_blank" rel="noopener">Mais Mu</a></td><td><span class="pill p2">2 · próxima semana</span></td><td>Snacks/bebidas proteicas para o lanche</td><td>Unidades para o kit</td><td>Bem-estar e rotina saudável</td></tr>
-      </tbody>
-    </table>
+<section class="panel-tab" id="marcas" role="tabpanel" aria-labelledby="t-marcas" hidden>
+  <div class="block">
+    <h2>Marcas</h2>
+    <p class="muted">Sempre um pedido específico, com uma alternativa caso a marca prefira outra coisa.</p>
   </div>
-
-  <div class="panel">
-    <h3>Lista B, se alguém recusar ou não responder até 6/11</h3>
-    <ul>
-      <li><strong>Cerâmica:</strong> ateliês de cerâmica do bairro (xícaras a preço de custo em troca de divulgação, ou até uma professora para conduzir a oficina).</li>
-      <li><strong>Café:</strong> uma cafeteria ou torrefação local para servir café especial no intervalo.</li>
-      <li><strong>Flores:</strong> floricultura do bairro para a decoração das mesas, com cartão da marca.</li>
-      <li><strong>Papelaria:</strong> cadernetas ou cartões para um momento de escrita/intenção.</li>
-      <li><strong>Marcas de participantes:</strong> perguntar na comunidade quem tem negócio próprio e quer apoiar. Rende parcerias rápidas e fortalece a comunidade.</li>
-    </ul>
+  <div class="cards">
+    <div class="card brand"><div class="top"><h3><a href="https://www.instagram.com/lolacosmetics/" target="_blank" rel="noopener">Lola Cosmetics</a></h3><span class="who ana">Ana</span></div>
+      <dl><dt>Pedido</dt><dd>~50 minis para o kit</dd><dt>Ou</dt><dd>Estação de cuidado no evento</dd><dt>Quando</dt><dd>Esta semana</dd></dl></div>
+    <div class="card brand"><div class="top"><h3><a href="https://www.instagram.com/soldejaneiro/" target="_blank" rel="noopener">Sol de Janeiro</a></h3><span class="who ana">Ana</span></div>
+      <dl><dt>Pedido</dt><dd>Amostras de perfume para o kit</dd><dt>Ou</dt><dd>"Perfume bar" no evento</dd><dt>Quando</dt><dd>Esta semana</dd></dl></div>
+    <div class="card brand"><div class="top"><h3><a href="https://www.instagram.com/yorgusgrego/" target="_blank" rel="noopener">Yorgus</a></h3><span class="who ana">Ana</span></div>
+      <dl><dt>Pedido</dt><dd>Iogurtes para o café da manhã</dd><dt>Ou</dt><dd>Unidades para o kit</dd><dt>Quando</dt><dd>19 a 25/out</dd></dl></div>
+    <div class="card brand"><div class="top"><h3><a href="https://www.instagram.com/maismu/" target="_blank" rel="noopener">Mais Mu</a></h3><span class="who ana">Ana</span></div>
+      <dl><dt>Pedido</dt><dd>Snacks ou bebidas para o lanche</dd><dt>Ou</dt><dd>Unidades para o kit</dd><dt>Quando</dt><dd>19 a 25/out</dd></dl></div>
+    <div class="card brand"><div class="top"><h3>Yogateria</h3><span class="who nath">Nath</span></div>
+      <dl><dt>Pedido</dt><dd>Empréstimo de ~50 tapetes</dd><dt>Canal</dt><dd>E-mail: parceria@yogateria.com.br</dd><dt>Quando</dt><dd>Esta semana</dd></dl></div>
+    <div class="card brand"><div class="top"><h3><a href="https://www.instagram.com/joaopadeiroeco/" target="_blank" rel="noopener">João Padeiro</a></h3><span class="who nath">Nath</span></div>
+      <dl><dt>Pedido</dt><dd>Pães para o café da manhã</dd><dt>Ou</dt><dd>Desconto na encomenda</dd><dt>Quando</dt><dd>19 a 25/out</dd></dl></div>
+    <div class="card brand"><div class="top"><h3><a href="https://www.instagram.com/santamartapadaria/" target="_blank" rel="noopener">Santa Marta</a></h3><span class="who nath">Nath</span></div>
+      <dl><dt>Pedido</dt><dd>Bolos ou salgados para o lanche</dd><dt>Ou</dt><dd>Desconto na encomenda</dd><dt>Quando</dt><dd>19 a 25/out</dd></dl></div>
+    <div class="card brand"><div class="top"><h3><a href="https://www.instagram.com/bambadobrasil/" target="_blank" rel="noopener">Bamba</a></h3><span class="who nath">Nath</span></div>
+      <dl><dt>Pedido</dt><dd>Ver no perfil o que vendem e pedir pelo nome</dd><dt>Ou</dt><dd>Unidades para o kit</dd><dt>Quando</dt><dd>19 a 25/out</dd></dl></div>
   </div>
+  <p class="note">Se alguém recusar: ateliês de cerâmica do bairro, uma cafeteria local para o café, uma floricultura para as mesas, ou participantes da comunidade que tenham negócio próprio.</p>
 </section>
 
 <!-- MENSAGENS -->
-<section id="mensagens">
-  <div class="eyebrow">Prontas para copiar</div>
-  <h2>Mensagens</h2>
-  <p class="lead">Os trechos <span class="ph">[assim]</span> são para preencher. Antes de enviar, troque a data por "20 ou 22 de novembro" ou pela data final, se já tiver saído.</p>
-
-  <div class="msg">
-    <div class="msg-head"><div class="meta"><h3>1. DM da Pri para marca grande</h3><span>Lola, Sol de Janeiro · Instagram da Pri</span></div><button class="copy" type="button">Copiar</button></div>
-<pre>Oi, time [Lola]! Aqui é a Pri Buiar, do Selfcare 💛
-
-Todo ano a gente faz um encontro presencial de aniversário da comunidade, um dia inteiro de autocuidado para mulheres: yoga, pintura em cerâmica, café da manhã e conversa. Este ano é no dia [20 ou 22] de novembro, aqui no Rio, e todo o lucro vai para o Instituto da Criança.
-
-Eu adoraria ter vocês com a gente. Pensamos em [minis para o kit das ~50 participantes], mas estamos abertas ao formato que fizer mais sentido para vocês.
-
-Pode me passar o contato de quem cuida de parcerias e ações com comunidade? Mando todos os detalhes por lá. Obrigada! 🌷</pre>
+<section class="panel-tab" id="msgs" role="tabpanel" aria-labelledby="t-msgs" hidden>
+  <div class="block">
+    <h2>Mensagens prontas</h2>
+    <p class="muted">Clique para abrir e copie. Troque o que está entre [colchetes].</p>
   </div>
 
-  <div class="msg">
-    <div class="msg-head"><div class="meta"><h3>2. E-mail com a proposta completa</h3><span>Para o e-mail de parcerias/PR · enviado pelo projeto, com a apresentação em PDF anexada</span></div><button class="copy" type="button">Copiar</button></div>
-<pre>Assunto: Convite de apoio: encontro beneficente Selfcare by Pri Buiar | [20 ou 22]/11
+  <div class="block">
+    <h3><span class="who pri">Pri</span> Para a Pri enviar no Instagram dela</h3>
 
-Olá, [nome ou time de parcerias],
+    <details class="msg"><summary><span><span class="t">DM para marca grande</span><span class="s">Lola, Sol de Janeiro, Yorgus, Mais Mu</span></span></summary><div class="msg-body">
+<pre>Oi, time [Lola]! Aqui é a Pri Buiar 💛
 
-Sou a [Ana], do Selfcare by Pri Buiar, comunidade de autocuidado feminino criada pela Pri Buiar ([nº] seguidoras no Instagram, [nº] no perfil do projeto).
+O Selfcare, meu projeto de autocuidado para mulheres, está fazendo 3 anos. Para comemorar, vamos fazer um encontro presencial no dia [20 ou 22] de novembro, aqui no Rio, com yoga, pintura em cerâmica e café da manhã. Todo o lucro vai para o Instituto da Criança.
 
-Todo ano celebramos o aniversário do projeto com um encontro presencial. Em 2026 ele acontece no dia [20 ou 22] de novembro, na Villa Morena (Rio de Janeiro), da manhã até o meio da tarde, com yoga, oficina de pintura em cerâmica, café da manhã e momentos de troca. Esperamos cerca de [50] participantes.
+Eu adoraria ter vocês com a gente, por exemplo com [minis para o kit das ~50 participantes].
 
-O evento é beneficente: todo o lucro vai para o Instituto da Criança, que autorizou o uso do seu nome nesta ação. Cada item doado por um parceiro é um custo a menos para nós e, portanto, um valor a mais para o Instituto.
+A Ana, da equipe do @selfcarebypribuiar, vai mandar todos os detalhes. Para qual e-mail ela pode enviar? Obrigada! 🌷</pre>
+      <div class="bar"><button class="copy" type="button">Copiar</button></div></div></details>
 
-Gostaríamos de convidar a [marca] a fazer parte, em um destes formatos:
-• [50 minis/amostras] para o kit que cada participante leva para casa;
-• uma [estação/ativação] da marca durante o evento;
-• outro formato que faça mais sentido para vocês.
+    <details class="msg"><summary><span><span class="t">DM para estabelecimento local</span><span class="s">João Padeiro, Santa Marta, Bamba</span></span></summary><div class="msg-body">
+<pre>Oi, [João Padeiro]! Aqui é a Pri Buiar 💛
 
-Em troca, oferecemos:
-• logo e marcação nas artes de divulgação do evento;
-• menções nos stories da Pri e do projeto antes, durante e depois;
-• marcação no reels de retrospectiva;
-• relatório pós-evento com fotos e o valor total doado ao Instituto.
+O Selfcare está fazendo 3 anos e vamos comemorar com um encontro no dia [20 ou 22] de novembro: yoga, pintura em cerâmica e um café da manhã para cerca de 50 mulheres. Todo o lucro vai para o Instituto da Criança.
 
-Para conseguirmos incluir a marca nas artes, precisaríamos da resposta até [6/11], com entrega dos produtos até [17/11].
+Queria muito ter [os pães de vocês] na nossa mesa! Vocês topariam apoiar com [uma doação ou um desconto]? Em troca, marcamos vocês na divulgação e nos stories do dia.
 
-Anexo uma apresentação de uma página com fotos da edição de 2025. Fico à disposição por aqui ou pelo WhatsApp [número].
+A Nath, da equipe do @selfcarebypribuiar, vai chamar vocês com os detalhes. Obrigada! 🌷</pre>
+      <div class="bar"><button class="copy" type="button">Copiar</button></div></div></details>
+  </div>
+
+  <div class="block">
+    <h3><span class="who ambas">Ana e Nath</span> Para a gente enviar pelo Selfcare</h3>
+
+    <details class="msg"><summary><span><span class="t">E-mail com a proposta</span><span class="s">Depois da DM da Pri · anexar a apresentação em PDF</span></span></summary><div class="msg-body">
+<pre>Assunto: Encontro Selfcare 3 anos | convite de apoio
+
+Olá, [nome]!
+
+Sou a [Ana], da equipe do Selfcare by Pri Buiar. A Pri comentou com vocês sobre o nosso encontro de aniversário, e envio aqui os detalhes.
+
+O encontro acontece no dia [data], na Villa Morena (Rio de Janeiro), com cerca de 50 mulheres da comunidade. Todo o lucro vai para o Instituto da Criança. Por isso, cada item doado é um custo a menos para o evento e um valor a mais para o Instituto.
+
+Pensamos em [50 minis para o kit das participantes], mas fiquem à vontade para sugerir outro formato.
+
+Em troca, a marca aparece nas artes de divulgação, nos stories da Pri e do Selfcare e no vídeo de retrospectiva. Depois do evento, enviamos fotos e o valor total arrecadado.
+
+Precisamos da confirmação até 6/11 e dos produtos até 17/11. A apresentação completa está em anexo.
 
 Um abraço,
 [Ana]
-Selfcare by Pri Buiar</pre>
-  </div>
+Selfcare by Pri Buiar · [WhatsApp]</pre>
+      <div class="bar"><button class="copy" type="button">Copiar</button></div></div></details>
 
-  <div class="msg">
-    <div class="msg-head"><div class="meta"><h3>3. DM da Pri para estabelecimento local</h3><span>João Padeiro, Santa Marta, Yorgus, Bamba, Mais Mu · Instagram da Pri</span></div><button class="copy" type="button">Copiar</button></div>
-<pre>Oi, [João Padeiro]! Aqui é a Pri Buiar, do Selfcare 💛 [Sou cliente e amo o pão de vocês!]
-
-Dia [20 ou 22] de novembro vamos fazer o encontro de aniversário da nossa comunidade, um dia de autocuidado com yoga, pintura em cerâmica e um café da manhã com cerca de 50 mulheres. É beneficente: todo o lucro vai para o Instituto da Criança.
-
-Queria muito ter [os pães de vocês] na nossa mesa. Toparia apoiar com [uma doação para o café da manhã ou um desconto na encomenda]? Em troca, a gente marca vocês na divulgação, nos stories do dia e no vídeo de retrospectiva.
-
-Se fizer sentido, a Aninha, que organiza o evento comigo, passa todos os detalhes. Obrigada! 🌷</pre>
-  </div>
-
-  <div class="msg">
-    <div class="msg-head"><div class="meta"><h3>4. E-mail para a Yogateria</h3><span>Pri responde no fio de e-mail de 2025 · parceria@yogateria.com.br</span></div><button class="copy" type="button">Copiar</button></div>
+    <details class="msg"><summary><span><span class="t">E-mail para a Yogateria</span><span class="s">Responder no e-mail de 2025 · parceria@yogateria.com.br</span></span></summary><div class="msg-body">
 <pre>Oi, [nome]! Tudo bem?
 
-Retomando nossa conversa do ano passado: o encontro de aniversário do Selfcare vai acontecer de novo, agora no dia [20 ou 22] de novembro, na Villa Morena. Os tapetes de vocês fizeram toda a diferença na aula de yoga de 2025, e as participantes elogiaram muito.
+Aqui é a [Nath], do Selfcare by Pri Buiar. Retomando a conversa do ano passado: o encontro de aniversário vai acontecer de novo, agora no dia [data], na Villa Morena. Os tapetes de vocês fizeram toda a diferença na aula de yoga de 2025!
 
-Será que conseguiríamos o empréstimo de novo, [50] tapetes? Seguimos com o mesmo cuidado na retirada e na devolução, e marcamos a Yogateria na divulgação, nos stories do dia e no vídeo de retrospectiva.
+Conseguiríamos o empréstimo de novo, [50] tapetes? Cuidamos da retirada e da devolução e marcamos a Yogateria na divulgação, nos stories do dia e no vídeo de retrospectiva.
 
-Este ano o lucro do evento vai todo para o Instituto da Criança, então o apoio de vocês também ajuda nessa causa.
+Este ano todo o lucro vai para o Instituto da Criança, então o apoio de vocês também ajuda essa causa.
 
-Fico no aguardo, e obrigada mais uma vez pela parceria!
-Pri</pre>
-  </div>
+Obrigada mais uma vez pela parceria!
+[Nath] · Selfcare by Pri Buiar</pre>
+      <div class="bar"><button class="copy" type="button">Copiar</button></div></div></details>
 
-  <div class="msg">
-    <div class="msg-head"><div class="meta"><h3>5. Follow-up</h3><span>5 dias úteis sem resposta · no mesmo canal</span></div><button class="copy" type="button">Copiar</button></div>
-<pre>Oi, [nome]! Passando para saber se conseguiram ver nossa mensagem sobre o encontro beneficente do Selfcare, no dia [data].
+    <details class="msg"><summary><span><span class="t">Follow-up</span><span class="s">5 dias úteis sem resposta</span></span></summary><div class="msg-body">
+<pre>Oi, [nome]! Passando para saber se viram nossa mensagem sobre o encontro beneficente do Selfcare, no dia [data].
 
-Estamos fechando os parceiros até [6/11] para incluir todos nas artes de divulgação, e adoraríamos ter a [marca] com a gente. Se for mais fácil, posso mandar os detalhes para outra pessoa do time. Obrigada! 🌷</pre>
-  </div>
+Estamos fechando os parceiros até 6/11 para incluir todos na divulgação, e adoraríamos ter a [marca] com a gente. Se for melhor falar com outra pessoa do time, é só me dizer. Obrigada! 🌷</pre>
+      <div class="bar"><button class="copy" type="button">Copiar</button></div></div></details>
 
-  <div class="msg">
-    <div class="msg-head"><div class="meta"><h3>6. Confirmação do apoio</h3><span>Assim que a marca disser sim · projeto</span></div><button class="copy" type="button">Copiar</button></div>
+    <details class="msg"><summary><span><span class="t">Confirmação do apoio</span><span class="s">Assim que a marca disser sim</span></span></summary><div class="msg-body">
 <pre>Que alegria ter vocês com a gente, [nome]! Muito obrigada 💛
 
-Para organizarmos tudo:
-• Data e local: [data], Villa Morena, [endereço]
-• Entrega dos produtos: até [17/11], no endereço [endereço], aos cuidados de [nome/telefone]
-• Pode nos mandar o logo em alta e o @ certo para marcação?
+Para organizarmos:
+• Evento: [data], Villa Morena, [endereço]
+• Entrega dos produtos: até 17/11, em [endereço], com [nome e telefone]
+• Podem mandar o logo em alta e o @ certo para marcarmos?
 
-Depois do evento envio as fotos e o valor total arrecadado para o Instituto da Criança.</pre>
-  </div>
+Depois do evento enviamos as fotos e o valor arrecadado para o Instituto da Criança.</pre>
+      <div class="bar"><button class="copy" type="button">Copiar</button></div></div></details>
 
-  <div class="msg">
-    <div class="msg-head"><div class="meta"><h3>7. Agradecimento pós-evento</h3><span>Até 7 dias depois · com fotos anexadas</span></div><button class="copy" type="button">Copiar</button></div>
+    <details class="msg"><summary><span><span class="t">Agradecimento pós-evento</span><span class="s">Até 7 dias depois · anexar fotos</span></span></summary><div class="msg-body">
 <pre>Oi, [nome]! O encontro foi lindo, e vocês fizeram parte disso 💛
 
-Reunimos [nº] mulheres e arrecadamos R$ [valor] para o Instituto da Criança. Seguem algumas fotos com [o produto/a ativação de vocês] e o link do reels de retrospectiva: [link].
+Reunimos [nº] mulheres e arrecadamos R$ [valor] para o Instituto da Criança. Seguem fotos com [o produto de vocês] e o link do vídeo de retrospectiva: [link].
 
 Obrigada pela confiança. Esperamos contar com vocês no próximo!
-Pri e equipe Selfcare</pre>
+Equipe Selfcare by Pri Buiar</pre>
+      <div class="bar"><button class="copy" type="button">Copiar</button></div></div></details>
   </div>
 </section>
 
 <!-- FORMS -->
-<section id="forms">
-  <div class="eyebrow">Para abrir quando a data sair</div>
-  <h2>Forms de inscrição</h2>
-  <p class="lead">Cada opção é separada para não confundir a contagem de quem vai estar presente. Só as opções A e B contam como presença. Vale conferir a formatação do forms de 2025 antes de abrir.</p>
-  <div class="forms-opts">
-    <div><span class="tag">A</span><b>Participação presencial: R$ 50</b><small>Conta como presença.</small></div>
-    <div><span class="tag">B</span><b>Participação presencial + doação extra: R$ 50 + valor livre</b><small>Conta como presença. Campo para o valor da doação.</small></div>
-    <div><span class="tag">C</span><b>Amadrinhar uma participante: R$ 50 ou mais</b><small>Não conta como presença. Para quem é de outra cidade, estado ou país e quer pagar a vaga de outra mulher.</small></div>
-    <div><span class="tag">D</span><b>Apenas doar ao Instituto da Criança: valor livre</b><small>Não conta como presença.</small></div>
+<section class="panel-tab" id="forms" role="tabpanel" aria-labelledby="t-forms" hidden>
+  <div class="block">
+    <h2>Forms de inscrição</h2>
+    <p class="muted">Abre assim que a data for confirmada (25/10). Cada pessoa escolhe uma das quatro opções abaixo.</p>
   </div>
-  <div class="panel">
-    <h3>Campos sugeridos</h3>
-    <ul>
-      <li>Nome, @ do Instagram, WhatsApp, e-mail</li>
-      <li>Opção escolhida (A, B, C ou D) e valor</li>
-      <li>Restrição alimentar (ajuda a planejar o café com o que vier dos parceiros)</li>
-      <li>Autorização de uso de imagem nas fotos e vídeos do evento</li>
-      <li>Como conheceu o Selfcare (dado útil para apresentar aos parceiros no ano que vem)</li>
-    </ul>
+  <div class="opts">
+    <div class="opt"><span class="l">A</span><span>Vou presencialmente · R$ 50</span><span class="c sim">conta presença</span></div>
+    <div class="opt"><span class="l">B</span><span>Vou presencialmente e doo um valor extra</span><span class="c sim">conta presença</span></div>
+    <div class="opt"><span class="l">C</span><span>Não vou, mas amadrinho uma participante</span><span class="c nao">não conta</span></div>
+    <div class="opt"><span class="l">D</span><span>Não vou, só quero doar ao Instituto</span><span class="c nao">não conta</span></div>
   </div>
-</section>
+  <p class="note">Para saber quantas pessoas vêm, conte só as respostas A e B. Quem escolhe C ou D pula as perguntas de comida e imagem.</p>
 
-<!-- ATIVIDADES -->
-<section id="atividades">
-  <div class="eyebrow">Programação e brindes</div>
-  <h2>Atividades</h2>
-  <div class="grid2">
-    <div class="panel">
-      <h3>Yoga</h3>
-      <p>Tapetes emprestados pela Yogateria (pedido nesta semana, mensagem 4). Confirmar com a professora a data final assim que sair.</p>
-    </div>
-    <div class="panel">
-      <h3>Pintura em cerâmica: xícara</h3>
-      <p>Boa ideia: é útil no dia a dia e lembra o evento sempre que a pessoa toma café. Um cuidado: se for usada para beber, a tinta precisa ser própria para porcelana e passar pela queima indicada pelo fabricante. Se a tinta for a frio, avisar que a xícara é decorativa. Vale buscar um ateliê de cerâmica como parceiro.</p>
-    </div>
-    <div class="panel">
-      <h3>Marcador de tricô da Carol</h3>
-      <p>Um marcador de página de coração nas cores do Selfcare para cada participante. Confirmar com a Carol quantas unidades ela consegue fazer, já que o número depende das inscrições.</p>
-    </div>
-    <div class="panel">
-      <h3>Kit da participante</h3>
-      <p>Marcador da Carol + produtos dos parceiros (Lola, Sol de Janeiro, snacks) + xícara pintada. Um cartão com o logo do Instituto e dos parceiros fecha o kit.</p>
-    </div>
+  <div class="card">
+    <h3>Como criar o forms em 2 minutos</h3>
+    <ol>
+      <li>Abra o arquivo <a href="https://github.com/anapvianna/calendario-pri/blob/main/forms-inscricao.gs" target="_blank" rel="noopener">forms-inscricao.gs</a> e copie tudo.</li>
+      <li>Entre em <a href="https://script.google.com" target="_blank" rel="noopener">script.google.com</a> com a conta do Selfcare e crie um projeto novo.</li>
+      <li>Cole o código e preencha no topo: data, chave Pix, WhatsApp para comprovante e horário.</li>
+      <li>Clique em <strong>Executar</strong> e autorize. Os links do forms aparecem no registro de execução.</li>
+    </ol>
+    <p class="muted">Antes de divulgar, compare com o forms de 2025 e ajuste o que quiser direto no Google Forms.</p>
   </div>
 </section>
 
-<!-- PENDÊNCIAS -->
-<section id="pendencias">
-  <div class="eyebrow">Para destravar o plano</div>
-  <h2>O que ainda precisamos saber</h2>
-  <ul class="list">
-    <li>Números atuais de seguidoras da Pri e do projeto, e alcance médio dos stories.</li>
-    <li>Quantas pessoas participaram em 2025 e quantas esperamos agora (o plano usa 50).</li>
-    <li>Quem apoiou em 2025 além da Yogateria: essas marcas devem ser procuradas primeiro.</li>
-    <li>Se a Pri conhece pessoalmente alguém das marcas ou dos estabelecimentos da lista.</li>
-    <li>Endereço e contato para entrega dos produtos.</li>
-    <li>Custo estimado do evento (espaço, cerâmica, comida), para mostrar quanto cada apoio libera para o Instituto.</li>
-  </ul>
-</section>
-
-<footer>Selfcare by Pri Buiar · Plano de captação de apoios do encontro de aniversário 2026</footer>
+<footer>Selfcare by Pri Buiar · Encontro de 3 anos · <a href="https://claude.ai/code/artifact/b96485a8-f9b2-4048-aa96-cb5eacf483c9" target="_blank" rel="noopener">Apresentação para parceiros</a> · <a href="./">Calendário</a></footer>
 </div>
 
 <script>
-document.querySelectorAll('button.copy').forEach(function (btn) {
-  btn.addEventListener('click', function () {
-    var pre = btn.closest('.msg').querySelector('pre');
-    var text = pre.innerText;
-    function done() { btn.textContent = 'Copiada'; btn.classList.add('done'); setTimeout(function () { btn.textContent = 'Copiar'; btn.classList.remove('done'); }, 1800); }
-    function fallback() {
-      var r = document.createRange(); r.selectNodeContents(pre);
-      var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
-      btn.textContent = 'Texto selecionado';
-    }
-    try { navigator.clipboard.writeText(text).then(done, fallback); } catch (e) { fallback(); }
+(function () {
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('.tabs button'));
+  function show(id, push) {
+    tabs.forEach(function (b) {
+      var on = b.getAttribute('aria-controls') === id;
+      b.setAttribute('aria-selected', on ? 'true' : 'false');
+      document.getElementById(b.getAttribute('aria-controls')).hidden = !on;
+    });
+    if (push) { try { history.replaceState(null, '', '#' + id); } catch (e) {} }
+  }
+  tabs.forEach(function (b) { b.addEventListener('click', function () { show(b.getAttribute('aria-controls'), true); window.scrollTo(0, 0); }); });
+  var start = (location.hash || '').slice(1);
+  if (start && document.getElementById(start) && document.getElementById(start).getAttribute('role') === 'tabpanel') show(start, false);
+
+  document.querySelectorAll('button.copy').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var pre = btn.closest('.msg-body').querySelector('pre');
+      function ok() { btn.textContent = 'Copiada ✓'; setTimeout(function () { btn.textContent = 'Copiar'; }, 1800); }
+      function fallback() { var r = document.createRange(); r.selectNodeContents(pre); var s = getSelection(); s.removeAllRanges(); s.addRange(r); btn.textContent = 'Texto selecionado'; }
+      try { navigator.clipboard.writeText(pre.innerText).then(ok, fallback); } catch (e) { fallback(); }
+    });
   });
-});
+})();
 </script>
+</body>
+</html>
